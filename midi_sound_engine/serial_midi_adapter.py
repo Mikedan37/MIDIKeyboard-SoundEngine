@@ -1,47 +1,42 @@
-import serial
-import serial.tools.list_ports
+from pynput import keyboard
 from engine import play_note, stop_note
+import threading
+import time
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 
-def find_serial_port():
-    ports = serial.tools.list_ports.comports()
-    for port in ports:
-        if "usbmodem" in port.device:
-            print(f"[SERIAL] ✅ Found: {port.device}")
-            return port.device
-    raise IOError("[SERIAL] ❌ Pico not found!")
+# Extended Mario Theme Notes (more than 2x longer)
+MARIO_NOTES = deque([
+    76, 76, 0, 76, 0, 72, 76, 0, 79, 0,         # E E - E - C E - G -
+    0, 67, 0, 0, 72, 0, 67, 0, 64, 0,           # - G - - C - G - E -
+    69, 0, 71, 70, 68, 66, 68, 70, 71, 69,       # A - B Bb A G A Bb B A
+    67, 69, 71, 72, 74, 76, 77, 79,             # G A B C D E F G
+    76, 74, 72, 71, 72                          # E D C B C
+])
 
-def serial_to_midi_bridge():
-    port = find_serial_port()
+note_duration = 0.2
+executor = ThreadPoolExecutor(max_workers=10)
+lock = threading.Lock()
+
+def play_mario_note():
+    note = MARIO_NOTES.popleft()
+    if note == 0:
+        return  # rest
+    play_note(note)
+    time.sleep(note_duration)
+    stop_note(note)
+    MARIO_NOTES.append(note)
+
+def on_press(key):
     try:
-        with serial.Serial(port, 115200, timeout=1) as ser:
-            print("[SERIAL] 📡 Listening to Pico Serial MIDI...")
-            while True:
-                try:
-                    line = ser.readline().decode("utf-8", errors="ignore").strip()
-                    if not line:
-                        continue
+        char = key.char.lower()
+        if char.isalpha():  # Only react to A–Z
+            with lock:
+                executor.submit(play_mario_note)
+    except AttributeError:
+        pass
 
-                    print(f"[SERIAL] 📥 {line}")
-
-                    if ':' not in line:
-                        continue  # Not valid format
-
-                    action, value = line.split(':', 1)
-                    try:
-                        note = int(value.strip())
-                    except ValueError:
-                        print(f"[WARN] Invalid note number: {value}")
-                        continue
-
-                    if action == "ON":
-                        print(f"[DEBUG] ▶️  play_note({note})")
-                        play_note(note)
-                    elif action == "OFF":
-                        print(f"[DEBUG] ⏹  stop_note({note})")
-                        stop_note(note)
-
-                except Exception as e:
-                    print(f"[SERIAL] ⚠️ Error: {e}")
-
-    except Exception as e:
-        print(f"[SERIAL] ❌ Could not open port: {e}")
+def start_keyboard_listener():
+    print("⌨️ Type any letters (A–Z) to advance through the Mario melody...")
+    with keyboard.Listener(on_press=on_press) as listener:
+        listener.join()
