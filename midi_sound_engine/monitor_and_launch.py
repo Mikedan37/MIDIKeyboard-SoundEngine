@@ -6,9 +6,16 @@ from engine import shutdown, start_audio_engine
 import logging
 import traceback
 
+
 def configure_logging():
     """Configure logging for the application."""
-    logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    logging.basicConfig(
+        filename="app.log",
+        filemode="w",
+        format="%(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
+
 
 def main():
     """Main function to start audio engine, launch listeners and menu bar."""
@@ -31,6 +38,7 @@ def main():
         raise
     finally:
         shutdown()
+
 
 if __name__ == "__main__":
     main()
