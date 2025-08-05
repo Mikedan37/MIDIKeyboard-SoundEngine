@@ -1,31 +1,34 @@
-# monitor_and_launch.py
+from pynput import keyboard
+from engine import play_note, stop_note
+from concurrent.futures import ThreadPoolExecutor
+import time
+import queue
 
-# Importing necessary modules
-from unified_listener import launch_listeners  # Single call to launch all listeners
-from synth_menu import SynthMenuBarApp
-from engine import shutdown, start_audio_engine
+# Extended Mario Theme Notes (more than 2x longer)
+MARIO_NOTES = [
+    # ... same as before ...
+]
 
-def main():
-    """Main function to start audio engine, launch listeners and menu bar."""
+note_duration = 0.2
+current_index = queue.Queue()
+current_index.put(0)
+
+def play_mario_note(index):
+    # ... same as before ...
+
+def on_press(key):
     try:
-        # Starting audio engine
-        print("🔊 Starting audio engine (main thread)...")
-        start_audio_engine()  # This comment is clear and helpful.
+        char = key.char.lower()
+        if char.isalpha():  # Only react to A–Z
+            index = current_index.get()
+            executor.submit(play_mario_note, index)
+            current_index.put((index + 1) % len(MARIO_NOTES))
+    except AttributeError:
+        pass
 
-        # Launching background listeners
-        print("🔌 Launching background listeners...")
-        launch_listeners()  # This comment is clear and helpful.
+def start_keyboard_listener():
+    print("⌨️ Type any letters (A–Z) to advance through the Mario melody...")
+    with keyboard.Listener(on_press=on_press) as listener:
+        listener.join()
 
-        # Launching menu bar
-        print("🚀 Launching menu bar...")
-        SynthMenuBarApp().run()  # Running the SynthMenuBarApp
-
-    except KeyboardInterrupt:
-        # Handling keyboard interrupt and shutting down
-        shutdown()
-        print("🛑 Synth system shut down.")
-
-# This is a good use of the if __name__ == "__main__": idiom.
-# It allows the script to be run directly or imported as a module.
-if __name__ == "__main__":
-    main()
+executor = ThreadPoolExecutor(max_workers=10)
