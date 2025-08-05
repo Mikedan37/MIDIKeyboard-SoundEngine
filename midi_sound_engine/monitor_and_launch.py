@@ -19,14 +19,12 @@ def main():
 
     except KeyboardInterrupt:
         # Handling keyboard interrupt and shutting down
+        logging.info("Keyboard interrupt received. Shutting down.")
         shutdown()
-        logging.info("Synth system shut down.")
     except Exception as e:
-        logging.error(f"Unexpected error: {e}")
+        logging.error(f"Unexpected error of type {type(e).__name__} occurred.")
         shutdown()
 
-# This is a good use of the if __name__ == "__main__": idiom.
-# It allows the script to be run directly or imported as a module.
 if __name__ == "__main__":
-    logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+    logging.basicConfig(filename='app.log', filemode='w', level=logging.INFO, format='%(name)s - %(levelname)s - %(message)s')
     main()
