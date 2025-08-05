@@ -1,25 +1,27 @@
 # monitor_and_launch.py
 
-# It's good practice to import only the specific functions you need from a module.
-# This can make your code more readable and efficient.
-from unified_listener import launch_listeners
+# Importing necessary modules
+from unified_listener import launch_listeners  # Single call to launch all listeners
 from synth_menu import SynthMenuBarApp
 from engine import shutdown, start_audio_engine
 
 def main():
+    """Main function to start audio engine, launch listeners and menu bar."""
     try:
+        # Starting audio engine
         print("🔊 Starting audio engine (main thread)...")
         start_audio_engine()  # This comment is clear and helpful.
 
+        # Launching background listeners
         print("🔌 Launching background listeners...")
         launch_listeners()  # This comment is clear and helpful.
 
+        # Launching menu bar
         print("🚀 Launching menu bar...")
-        # It's good practice to separate object creation from method calls.
-        # This can make your code more readable and easier to debug.
-        app = SynthMenuBarApp()
-        app.run()
+        SynthMenuBarApp().run()  # Running the SynthMenuBarApp
+
     except KeyboardInterrupt:
+        # Handling keyboard interrupt and shutting down
         shutdown()
         print("🛑 Synth system shut down.")
 
