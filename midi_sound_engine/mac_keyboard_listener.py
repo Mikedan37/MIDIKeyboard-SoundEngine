@@ -1,37 +1,39 @@
 from pynput import keyboard
 from engine import play_note, stop_note
-import threading
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 import time
+import threading
 
 # Extended Mario Theme Notes (more than 2x longer)
-MARIO_NOTES = [
+MARIO_NOTES = deque([
     76, 76, 0, 76, 0, 72, 76, 0, 79, 0,         # E E - E - C E - G -
     0, 67, 0, 0, 72, 0, 67, 0, 64, 0,           # - G - - C - G - E -
     69, 0, 71, 70, 68, 66, 68, 70, 71, 69,       # A - B Bb A G A Bb B A
     67, 69, 71, 72, 74, 76, 77, 79,             # G A B C D E F G
     76, 74, 72, 71, 72                          # E D C B C
-]
+])
 
 note_duration = 0.2
-current_index = 0
-lock = threading.Lock()
+executor = ThreadPoolExecutor(max_workers=5)
+condition = threading.Condition()
 
-def play_mario_note(index):
-    note = MARIO_NOTES[index]
-    if note == 0:
-        return  # rest
-    play_note(note)
-    time.sleep(note_duration)
-    stop_note(note)
+def play_mario_note():
+    with condition:
+        note = MARIO_NOTES.popleft()
+        MARIO_NOTES.append(note)
+        if note == 0:
+            return  # rest
+        play_note(note)
+        time.sleep(note_duration)
+        stop_note(note)
 
 def on_press(key):
-    global current_index
     try:
         char = key.char.lower()
         if char.isalpha():  # Only react to A–Z
-            with lock:
-                threading.Thread(target=play_mario_note, args=(current_index,)).start()
-                current_index = (current_index + 1) % len(MARIO_NOTES)
+            with condition:
+                executor.submit(play_mario_note)
     except AttributeError:
         pass
 
