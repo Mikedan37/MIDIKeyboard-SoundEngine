@@ -5,31 +5,37 @@ from synth_menu import SynthMenuBarApp
 from engine import shutdown, start_audio_engine
 import logging
 
-def configure_logging():
-    """Configure logging for the application."""
-    logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+class LoggingContextManager:
+    """Context manager for logging."""
+    def __enter__(self):
+        logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Close the logger here if necessary
+        pass
 
 def main():
     """Main function to start audio engine, launch listeners and menu bar."""
-    configure_logging()
-    try:
-        logging.info("Starting audio engine (main thread)...")
-        start_audio_engine()
+    with LoggingContextManager():
+        try:
+            logging.info("Starting audio engine (main thread)...")
+            start_audio_engine()
 
-        logging.info("Launching background listeners...")
-        launch_listeners()
+            logging.info("Launching background listeners...")
+            launch_listeners()
 
-        logging.info("Launching menu bar...")
-        SynthMenuBarApp().run()
+            logging.info("Launching menu bar...")
+            SynthMenuBarApp().run()
 
-    except KeyboardInterrupt:
-        logging.info("Synth system shut down.")
-        raise
-    except Exception as e:
-        logging.error(f"Unexpected error: {e}")
-        raise
-    finally:
-        shutdown()
+        except KeyboardInterrupt:
+            logging.info("Synth system shut down.")
+            shutdown()  # Shut down before re-raising the exception
+            raise
+        except Exception as e:  # Consider catching a more specific exception
+            logging.error(f"Unexpected error: {e}")
+            shutdown()  # Shut down before re-raising the exception
+            raise
 
 if __name__ == "__main__":
     main()
