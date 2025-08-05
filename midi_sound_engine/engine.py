@@ -10,9 +10,9 @@ BLOCK_SIZE = 512
 TIMEOUT = 0.3  # seconds to hold before auto stop
 
 # 🎛️ Engine state
-lock = threading.Lock()
+lock = threading.RLock()  # Use RLock for reentrant locking
 playing = False
-held_notes = set()
+held_notes = []  # Use a list for faster iteration
 note_timestamps = {}
 phase_dict = {}
 
@@ -26,7 +26,7 @@ def freq_from_midi(note):
 def play_note(note, velocity=100):
     global last_note, last_freq
     with lock:
-        held_notes.add(note)
+        held_notes.append(note)  # Use append for list
         note_timestamps[note] = time.time()
         if note not in phase_dict:
             phase_dict[note] = 0.0
@@ -52,9 +52,10 @@ def audio_callback(outdata, frames, time_info, status):
     now = time.time()
 
     with lock:
-        for note in list(held_notes):
+        notes_to_remove = []
+        for note in held_notes:
             if now - note_timestamps.get(note, 0) > TIMEOUT:
-                held_notes.remove(note)
+                notes_to_remove.append(note)
                 print(f"[ENGINE] ⏹️ Auto-stop {note}")
                 continue
 
@@ -66,8 +67,12 @@ def audio_callback(outdata, frames, time_info, status):
             phase_dict[note] = phase % (2 * np.pi)
             buffer += wave
 
-        if np.max(np.abs(buffer)) > 0:
-            buffer /= np.max(np.abs(buffer))
+        for note in notes_to_remove:
+            held_notes.remove(note)
+
+        max_abs_buffer = np.max(np.abs(buffer))  # Store result in variable
+        if max_abs_buffer > 0:
+            buffer /= max_abs_buffer
 
     outdata[:] = buffer.reshape(-1, 1)
 
