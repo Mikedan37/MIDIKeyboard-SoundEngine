@@ -1,47 +1,34 @@
-import serial
-import serial.tools.list_ports
-from engine import play_note, stop_note
+# monitor_and_launch.py
 
-def find_serial_port():
-    ports = serial.tools.list_ports.comports()
-    for port in ports:
-        if "usbmodem" in port.device:
-            print(f"[SERIAL] ✅ Found: {port.device}")
-            return port.device
-    raise IOError("[SERIAL] ❌ Pico not found!")
+# Importing necessary modules
+import logging
 
-def serial_to_midi_bridge():
-    port = find_serial_port()
+def main():
+    """Main function to start audio engine, launch listeners and menu bar."""
     try:
-        with serial.Serial(port, 115200, timeout=1) as ser:
-            print("[SERIAL] 📡 Listening to Pico Serial MIDI...")
-            while True:
-                try:
-                    line = ser.readline().decode("utf-8", errors="ignore").strip()
-                    if not line:
-                        continue
+        # Lazy import modules
+        from unified_listener import launch_listeners
+        from synth_menu import SynthMenuBarApp
+        from engine import shutdown, start_audio_engine
 
-                    print(f"[SERIAL] 📥 {line}")
+        # Starting audio engine
+        logging.info("🔊 Starting audio engine (main thread)...")
+        start_audio_engine()
 
-                    if ':' not in line:
-                        continue  # Not valid format
+        # Launching background listeners
+        logging.info("🔌 Launching background listeners...")
+        launch_listeners()
 
-                    action, value = line.split(':', 1)
-                    try:
-                        note = int(value.strip())
-                    except ValueError:
-                        print(f"[WARN] Invalid note number: {value}")
-                        continue
-
-                    if action == "ON":
-                        print(f"[DEBUG] ▶️  play_note({note})")
-                        play_note(note)
-                    elif action == "OFF":
-                        print(f"[DEBUG] ⏹  stop_note({note})")
-                        stop_note(note)
-
-                except Exception as e:
-                    print(f"[SERIAL] ⚠️ Error: {e}")
+        # Launching menu bar
+        logging.info("🚀 Launching menu bar...")
+        SynthMenuBarApp().run()
 
     except Exception as e:
-        print(f"[SERIAL] ❌ Could not open port: {e}")
+        # Handling all exceptions and shutting down
+        logging.error(f"An error occurred: {e}")
+        shutdown()
+        logging.info("🛑 Synth system shut down.")
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    main()
