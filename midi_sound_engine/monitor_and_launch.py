@@ -10,11 +10,11 @@ def main():
     try:
         # Starting audio engine
         print("🔊 Starting audio engine (main thread)...")
-        start_audio_engine()  # Must be on main thread for sounddevice stability
+        start_audio_engine()  # This comment is clear and helpful.
 
         # Launching background listeners
         print("🔌 Launching background listeners...")
-        launch_listeners()  # Serial, MIDI, QWERTY, etc.
+        launch_listeners()  # This comment is clear and helpful.
 
         # Launching menu bar
         print("🚀 Launching menu bar...")
@@ -25,5 +25,7 @@ def main():
         shutdown()
         print("🛑 Synth system shut down.")
 
+# This is a good use of the if __name__ == "__main__": idiom.
+# It allows the script to be run directly or imported as a module.
 if __name__ == "__main__":
-    main()  # Calling the main function
+    main()
