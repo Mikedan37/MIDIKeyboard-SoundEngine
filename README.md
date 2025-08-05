@@ -2,7 +2,7 @@
 
 Turn any computer into a full-blown musical instrument.
 This Senior Design project is a custom-built QWERTY + MIDI USB keyboard that supports polyphonic playback, live synthesizer control, and driver-level customization using the Raspberry Pi Pico.
-
+ 
 🔌 Just plug it in. Start typing. Hear music.
 
 ⸻
