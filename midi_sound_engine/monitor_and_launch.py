@@ -3,10 +3,16 @@ from synth_menu import SynthMenuBarApp
 from engine import shutdown, start_audio_engine
 import logging
 
+
 def configure_logging():
     """Configure logging for the application."""
     # Consider storing the log file in a secure location and/or implementing log file encryption.
-    logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+    logging.basicConfig(
+        filename="app.log",
+        filemode="w",
+        format="%(name)s - %(levelname)s - %(message)s",
+    )
+
 
 def main():
     """Main function to start audio engine, launch listeners and menu bar."""
@@ -32,6 +38,7 @@ def main():
         raise
     finally:
         shutdown()
+
 
 if __name__ == "__main__":
     main()
