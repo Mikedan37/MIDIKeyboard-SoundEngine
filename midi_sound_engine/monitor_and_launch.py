@@ -15,18 +15,17 @@ def main():
         launch_listeners()
 
         logging.info("Launching menu bar...")
-        SynthMenuBarApp().run()
+        synth_menu_bar_app = SynthMenuBarApp()  # Create a single instance and reuse it
+        synth_menu_bar_app.run()
 
     except KeyboardInterrupt:
         # Handling keyboard interrupt and shutting down
         shutdown()
         logging.info("Synth system shut down.")
-    except Exception as e:
+    except Exception as e:  # Consider catching specific exceptions
         logging.error(f"Unexpected error: {e}")
         shutdown()
 
-# This is a good use of the if __name__ == "__main__": idiom.
-# It allows the script to be run directly or imported as a module.
 if __name__ == "__main__":
     logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
     main()
