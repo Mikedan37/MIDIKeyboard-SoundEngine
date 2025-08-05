@@ -1,47 +1,43 @@
-import serial
-import serial.tools.list_ports
+from pynput import keyboard
 from engine import play_note, stop_note
+import threading
+import time
 
-def find_serial_port():
-    ports = serial.tools.list_ports.comports()
-    for port in ports:
-        if "usbmodem" in port.device:
-            print(f"[SERIAL] ✅ Found: {port.device}")
-            return port.device
-    raise IOError("[SERIAL] ❌ Pico not found!")
+MARIO_NOTES = [
+    # ... same as before ...
+]
 
-def serial_to_midi_bridge():
-    port = find_serial_port()
-    try:
-        with serial.Serial(port, 115200, timeout=1) as ser:
-            print("[SERIAL] 📡 Listening to Pico Serial MIDI...")
-            while True:
-                try:
-                    line = ser.readline().decode("utf-8", errors="ignore").strip()
-                    if not line:
-                        continue
+class MarioPlayer:
+    def __init__(self):
+        self.note_duration = 0.2
+        self.current_index = 0
+        self.lock = threading.Lock()
 
-                    print(f"[SERIAL] 📥 {line}")
+    def play_mario_note(self, index):
+        note = MARIO_NOTES[index]
+        if note == 0:
+            return  # rest
+        play_note(note)
+        time.sleep(self.note_duration)
+        stop_note(note)
 
-                    if ':' not in line:
-                        continue  # Not valid format
+    def on_press(self, key):
+        try:
+            char = key.char.lower()
+            if char.isalpha():  # Only react to A–Z
+                with self.lock:
+                    threading.Thread(target=self.play_mario_note, args=(self.current_index,)).start()
+                    self.current_index = (self.current_index + 1) % len(MARIO_NOTES)
+        except AttributeError:
+            pass
+        except Exception as e:  # Catch all other exceptions
+            print(f"Unexpected error: {e}")
 
-                    action, value = line.split(':', 1)
-                    try:
-                        note = int(value.strip())
-                    except ValueError:
-                        print(f"[WARN] Invalid note number: {value}")
-                        continue
+    def start_keyboard_listener(self):
+        print("⌨️ Type any letters (A–Z) to advance through the Mario melody...")
+        with keyboard.Listener(on_press=self.on_press) as listener:
+            listener.join()
 
-                    if action == "ON":
-                        print(f"[DEBUG] ▶️  play_note({note})")
-                        play_note(note)
-                    elif action == "OFF":
-                        print(f"[DEBUG] ⏹  stop_note({note})")
-                        stop_note(note)
-
-                except Exception as e:
-                    print(f"[SERIAL] ⚠️ Error: {e}")
-
-    except Exception as e:
-        print(f"[SERIAL] ❌ Could not open port: {e}")
+# Usage
+player = MarioPlayer()
+player.start_keyboard_listener()
