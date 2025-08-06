@@ -1,3 +1,4 @@
+
 def handle_key_press(key_event):
     """
     Handles a key press event.
@@ -21,7 +22,6 @@ def handle_key_press(key_event):
             process_note_off(key_event.note)
 
 
-
 def process_note_on(note):
     """
     Processes a note on event.
@@ -34,6 +34,7 @@ def process_note_off(note):
     Processes a note off event.
     """
     print(f"Note OFF: {note}")
+
 
 # Something New  No changes
 # TODO: Fix this function
