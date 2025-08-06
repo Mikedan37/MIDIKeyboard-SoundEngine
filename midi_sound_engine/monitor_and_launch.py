@@ -1,5 +1,3 @@
-# monitor_and_launch.py
-
 from unified_listener import launch_listeners
 from synth_menu import SynthMenuBarApp
 from engine import shutdown, start_audio_engine
@@ -15,7 +13,6 @@ def configure_logging():
         format="%(name)s - %(levelname)s - %(message)s",
         level=logging.INFO,
     )
-
 
 def main():
     """Main function to start audio engine, launch listeners and menu bar."""
