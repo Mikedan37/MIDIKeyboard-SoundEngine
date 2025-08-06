@@ -1,5 +1,3 @@
-# monitor_and_launch.py
-
 from unified_listener import launch_listeners
 from synth_menu import SynthMenuBarApp
 from engine import shutdown, start_audio_engine
