@@ -30,10 +30,9 @@ def process_note_on(note):
 
 
 def process_note_off(note):
-    """
-    Processes a note off event.
-    """
-    print(f"Note OFF: {note}")
+    # Using string formatting can potentially lead to security issues.
+    # It's better to use parameterized print statements.
+    print("Note OFF: %s", note)
 
 
 # Something New  No changes

@@ -1,3 +1,4 @@
+
 from unified_listener import launch_listeners
 from synth_menu import SynthMenuBarApp
 from engine import shutdown, start_audio_engine
@@ -35,7 +36,12 @@ def main():
         raise
     finally:
         shutdown()
-
+        print("🛑 Synth system shut down.")
+    except Exception as e:
+        # Catch any other exception and print it for debugging
+        print(f"Unexpected error: {e}")
+        shutdown()
+        print("🛑 Synth system shut down.")
 
 if __name__ == "__main__":
     main()
