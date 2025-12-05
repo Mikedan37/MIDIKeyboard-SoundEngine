@@ -1,0 +1,19 @@
+# Python dependencies for QWERTY MIDI Keyboard Synthesizer
+# Install with: pip install -r requirements.txt
+
+# Audio synthesis
+sounddevice>=0.5.0
+numpy>=1.24.0
+
+# MIDI support
+mido>=1.3.0
+python-rtmidi>=1.5.0
+
+# Keyboard input (for QWERTY mode)
+pynput>=1.7.6
+
+# Serial communication
+pyserial>=3.5
+
+# macOS GUI (macOS only - install separately if needed)
+# rumps>=0.4.0

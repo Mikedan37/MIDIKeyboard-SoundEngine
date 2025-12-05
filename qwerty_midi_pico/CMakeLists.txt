@@ -10,13 +10,15 @@ add_compile_definitions(CFG_TUD_HID=1 CFG_TUD_MIDI=1)
 
 add_executable(qwerty_midi_pico
     main.c
-    drivers/gpio_driver.c
+    drivers/current/gpio_driver.c
+    drivers/current/msqt32_shift_register.c
+    drivers/current/velocity_matrix.c
     usb_descriptors.c
 )
 
 target_include_directories(qwerty_midi_pico PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
-    ${CMAKE_CURRENT_LIST_DIR}/drivers
+    ${CMAKE_CURRENT_LIST_DIR}/drivers/current
 )
 
 target_link_libraries(qwerty_midi_pico

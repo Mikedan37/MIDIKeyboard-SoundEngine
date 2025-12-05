@@ -1,129 +1,176 @@
-🎹 QWERTY & MIDI Plug-and-Play Keyboard System
+# QWERTY MIDI Keyboard
 
-Turn any computer into a full-blown musical instrument.
-This Senior Design project is a custom-built QWERTY + MIDI USB keyboard that supports polyphonic playback, live synthesizer control, and driver-level customization using the Raspberry Pi Pico.
+Velocity-sensitive USB keyboard that functions as both a standard QWERTY keyboard and a MIDI controller. Built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis.
 
-🔌 Just plug it in. Start typing. Hear music.
+## Quick Start
 
-⸻
+### macOS / Linux
+```bash
+./setup.sh
+```
 
-🔧 Project Overview
+### Windows
+```powershell
+.\setup.ps1
+```
 
-Title: QWERTY & MIDI Plug-and-Play Keyboards with Driver Framework
-Team Members:
-	•	👨‍💻 Michael Danylchuk — Firmware, Audio Engine, macOS Synth GUI
-	•	🔩 Christopher “Zac” Hatchett — Hardware Design, PCB, GPIO Integration
-Platform: Raspberry Pi Pico (RP2040)
-Languages: C, Python (macOS), Assembly (USB descriptors)
+The setup script automatically installs dependencies and configures auto-launch. See [QUICKSTART.md](QUICKSTART.md) for details.
 
-⸻
+## Features
 
-🚀 Features
+- **Dual Mode Operation**: Switch between QWERTY typing and MIDI controller modes
+- **Velocity-Sensitive Keys**: 2×24 matrix with early/late contact detection for accurate velocity measurement
+- **Real-Time Synthesis**: Pure Python synthesizer with polyphonic playback
+- **macOS Integration**: Menu bar app with live MIDI note display
+- **Plug-and-Play**: USB HID + MIDI device, no drivers required
+- **Hardware-Agnostic Testing**: Comprehensive test suite that runs without hardware
 
-🎼 QWERTY + MIDI Keyboard Modes
-	•	QWERTY Mode: Sends typed characters like a normal USB keyboard.
-	•	MIDI Mode: Each key maps to a MIDI note.
-	•	Seamlessly switchable firmware with custom C driver code.
+## Architecture
 
-🔊 Real-Time Sound Engine
-	•	Pure Python synth with live playback via sounddevice.
-	•	Polyphonic: Hold and mix multiple keys at once.
-	•	Timeout-based sustain for natural release.
+### Hardware
+- **Microcontroller**: Raspberry Pi Pico (RP2040)
+- **Matrix**: 2×24 velocity-sensitive keyboard (24 keys total)
+- **Interface**: MSQT32 shift registers for column reading
+- **Communication**: USB HID + MIDI over USB
 
-🍎 macOS Menu Bar App
-	•	Lightweight menu extra using rumps.
-	•	Displays the live MIDI note and frequency.
-	•	Smooth status updates on currently played tones.
+### Software
+- **Firmware**: C (Pico SDK, TinyUSB)
+- **Synthesizer**: Python (sounddevice, numpy)
+- **GUI**: Python (rumps for macOS menu bar)
 
-🧠 Smart Engine Architecture
-	•	Modular threading: keyboard input, Pico MIDI, and GUI run concurrently.
-	•	Real-time updates from engine.py sync with the menu bar GUI.
-	•	MIDI listener automatically detects and connects to the Pico.
+## Project Structure
 
-⸻
+```
+.
+ qwerty_midi_pico/ # Pico firmware
+ drivers/ # Hardware drivers
+ current/ # Active drivers
+ legacy/ # Legacy drivers
+ tests/ # Test suite
+ FLASH.md # Firmware flashing guide
 
-🛠️ Folder Structure
+ midi_sound_engine/ # Python synthesizer
+ engine.py # Core synthesis engine
+ synth_menu.py # macOS menu bar GUI
+ monitor_and_launch.py # Auto-launch script
 
-├── midi_sound_engine/
-│   ├── engine.py              # Synthesizer engine
-│   ├── test_play.py           # QWERTY polling + MIDI support
-│   ├── monitor_and_launch.py  # Auto-launcher when Pico is plugged in
-│   ├── synth_menu.py          # macOS menu bar interface
-│   └── pico_listener.py       # Reads MIDI notes from Pico
-│
-├── qwerty_midi_pico/
-│   ├── drivers/               # Custom C driver for GPIO and key mapping
-│   ├── usb_descriptors.c/h    # MIDI class descriptors
-│   ├── tonegen.c              # Tone generator logic (for microcontroller test)
-│   └── main.c                 # Entry point for firmware
+ docs/ # Documentation
+ architecture/ # System design
+ hardware/ # Hardware docs
+ implementation/ # Implementation guides
+ testing/ # Testing docs
+```
 
+## Installation
 
+See [INSTALL.md](INSTALL.md) for detailed installation instructions.
 
-⸻
+### Prerequisites
 
-💻 How It Works
+- Python 3.9+
+- Raspberry Pi Pico (RP2040)
+- CMake 3.13+ (for firmware development)
 
-Step 1: Plug It In
+### Building Firmware
 
-The Pico shows up as a USB MIDI device.
+```bash
+cd qwerty_midi_pico
+mkdir build && cd build
+cmake ..
+make
+```
 
-Step 2: Autodetection
+Flash the `.uf2` file to your Pico by holding BOOTSEL and connecting via USB. See [qwerty_midi_pico/FLASH.md](qwerty_midi_pico/FLASH.md) for details.
 
-The monitor_and_launch.py script detects the Pico and:
-	•	Starts the Python synth engine.
-	•	Launches the macOS menu bar GUI.
-	•	Begins listening for input from both your QWERTY and Pico.
+## How It Works
 
-Step 3: Start Typing
-	•	Press a–k to play notes.
-	•	Multiple keys can be held to create chords.
-	•	Menu bar updates in real-time with note + frequency.
+### Velocity Detection
 
-⸻
+The keyboard uses a 2-phase scanning method:
 
-📦 Dependencies
+1. **Early Contact (ROW0)**: Detects first touch → records timestamp T₀
+2. **Late Contact (ROW1)**: Detects full press → records timestamp T₁
+3. **Velocity Calculation**: `velocity = f(T₁ - T₀)` → MIDI velocity (1-127)
 
-Python (macOS Synth Engine):
+Faster key presses result in higher velocity values.
 
-pip install sounddevice numpy rumps mido python-rtmidi keyboard
+### Data Flow
 
-C (Pico Firmware):
-	•	TinyUSB MIDI class
-	•	CMake toolchain
-	•	Tested with pico-sdk
+```
+Physical Key Press
+ ↓
+Early Contact (ROW0) → Timestamp T₀
+ ↓
+Late Contact (ROW1) → Timestamp T₁
+ ↓
+Velocity = f(T₁ - T₀)
+ ↓
+MIDI Note ON with Velocity
+ ↓
+Python Synthesizer → Audio Output
+```
 
-⸻
+## Testing
 
-🎓 Educational Goals
+The project includes a comprehensive test suite that validates the velocity calculation algorithm without requiring hardware:
 
-This project teaches:
-	•	USB driver development
-	•	Real-time audio synthesis
-	•	Multi-threaded design
-	•	Embedded systems integration
-	•	Cross-platform MIDI support
-	•	GUI development for embedded interfaces
+```bash
+cd qwerty_midi_pico/tests
+make test_velocity_simple
+./test_velocity_simple
+```
 
-⸻
+## Configuration
 
-📽️ Demo
+### Pin Assignments
 
-Coming Soon: Full walkthrough video + live sound demo.
+Update these in `qwerty_midi_pico/drivers/current/velocity_matrix.h`:
+```c
+#define ROW0_PIN 6 // Early contact row
+#define ROW1_PIN 7 // Late contact row
+```
 
-⸻
+Update in `qwerty_midi_pico/drivers/current/msqt32_shift_register.h`:
+```c
+#define SHIFT_DATA_PIN 10 // MSQT32 data
+#define SHIFT_CLOCK_PIN 11 // MSQT32 clock
+#define SHIFT_LATCH_PIN 12 // MSQT32 latch
+```
 
-🧠 Future Improvements
-	•	🎛️ Add EQ, waveform shape selection
-	•	🎤 Input-based pitch detection
-	•	💻 Windows/Linux support for GUI
-	•	🧪 AI-based note prediction via ai_predict.py
+### MIDI Note Mapping
 
-⸻
+Edit `qwerty_midi_pico/main.c` to change key-to-note mappings:
+```c
+const uint8_t midi_notes[NUM_KEYS] = {
+ 60, 61, 62, ... // C4, C#4, D4, ...
+};
+```
 
-🤝 Credits
+## Documentation
 
-Created at San Jose State University (EE198A)
-Mentored by Dr. Nadir Mir
+- [QUICKSTART.md](QUICKSTART.md) - 5-minute setup guide
+- [INSTALL.md](INSTALL.md) - Detailed installation
+- [docs/](docs/) - Complete documentation index
+- [qwerty_midi_pico/FLASH.md](qwerty_midi_pico/FLASH.md) - Firmware flashing
+- [COMPATIBILITY.md](COMPATIBILITY.md) - Platform compatibility
+- [PERFORMANCE_METRICS.md](PERFORMANCE_METRICS.md) - Performance analysis
 
-⸻
+## Contributing
 
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Authors
+
+- **Michael Danylchuk** - Firmware, Audio Engine, macOS GUI
+- **Christopher "Zac" Hatchett** - Hardware Design, PCB, GPIO Integration
+
+## Acknowledgments
+
+- San Jose State University (EE198A Senior Design Project)
+- Dr. Nadir Mir - Project Mentor
+- Raspberry Pi Foundation - Pico SDK
+- TinyUSB Contributors - USB stack

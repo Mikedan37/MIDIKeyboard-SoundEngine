@@ -29,3 +29,6 @@ def midi_listener():
         except Exception as e:
             print(f"⚠️ MIDI error: {e}. Reconnecting in 2s...")
             time.sleep(2)
+
+
+            

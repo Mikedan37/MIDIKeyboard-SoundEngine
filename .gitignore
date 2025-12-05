@@ -1,5 +1,78 @@
-__pycache__/
+# Build artifacts
+build/
 *.o
+*.elf
+*.uf2
 *.bin
 *.hex
-*.elf
+*.map
+*.d
+*.a
+*.so
+*.dylib
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+!*.cmake.in
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+clean_synth_env/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test artifacts
+qwerty_midi_pico/tests/*.o
+qwerty_midi_pico/tests/test_velocity_simple
+qwerty_midi_pico/tests/calc_vel
+qwerty_midi_pico/tests/test_vel_calc
+test_poly
+test_tone
+
+# Pico SDK (downloaded automatically)
+qwerty_midi_pico/pico-sdk/
+qwerty_midi_pico/build/
+
+# Soundfonts and large binary files
+midi_sound_engine/soundfonts/*.sf2
+*.sf2
+
+# Logs
+*.log
+/tmp/pico_autorun.log
+/tmp/pico_autorun_error.log
+~/Library/Logs/qwerty_midi.log
+~/Library/Logs/qwerty_midi_error.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# OS-specific
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride

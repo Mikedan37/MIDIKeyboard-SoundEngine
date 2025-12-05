@@ -1,0 +1,9 @@
+# macOS-specific dependencies
+# Install with: pip install -r requirements-macos.txt
+
+# Include base requirements
+-r requirements.txt
+
+# macOS menu bar GUI
+rumps>=0.4.0
+

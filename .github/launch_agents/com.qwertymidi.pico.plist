@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.qwertymidi.pico</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>REPLACE_WITH_VENV_PYTHON</string>
+        <string>REPLACE_WITH_SCRIPT_PATH</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>REPLACE_WITH_LOG_PATH</string>
+    <key>StandardErrorPath</key>
+    <string>REPLACE_WITH_ERROR_LOG_PATH</string>
+    <key>WorkingDirectory</key>
+    <string>REPLACE_WITH_WORKING_DIR</string>
+</dict>
+</plist>
+

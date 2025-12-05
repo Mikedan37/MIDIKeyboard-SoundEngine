@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <_time.h>
+#include <time.h>
 
 #define DEBOUNCE_MS 50
 #define MAX_KEYS 24
@@ -37,7 +37,7 @@ void scan_keys_and_play() {
                 if (val) {
                     float freq = midi_freq_table[i];
                     printf("🎹 GPIO %d active → %.2f Hz\n", pin, freq);
-                    play_tone(freq);
+                    start_note(freq);
                 }
             }
         }
