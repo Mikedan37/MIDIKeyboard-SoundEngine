@@ -358,7 +358,7 @@ Example: [0x80, 60, 0] → Note C4 off, Channel 0
 4. **Extensible**: Supports additional MIDI controllers and parameters
 5. **Hardware Abstraction**: Software can interpret MIDI independently
 
-For detailed MIDI protocol documentation, see [docs/MIDI_PROTOCOL_THEORY.md](docs/MIDI_PROTOCOL_THEORY.md).
+For detailed MIDI protocol documentation, see the [MIDI Protocol](#midi-protocol) section above and the [hardware documentation](docs/hardware/).
 
 ---
 
@@ -446,9 +446,9 @@ Complete documentation is available in the [`docs/`](docs/) directory:
 - [Firmware Flashing](qwerty_midi_pico/FLASH.md) - Pico firmware deployment
 
 ### Technical Details
-- [MIDI Protocol Theory](docs/MIDI_PROTOCOL_THEORY.md) - Comprehensive MIDI documentation
-- [Theory & Calculations](docs/THEORY_AND_CALCULATIONS.md) - Mathematical foundations
 - [Testing Guide](docs/testing/TESTING_GUIDE.md) - Test suite documentation
+- [Hardware Documentation](docs/hardware/) - Velocity matrix, PCB, and schematic guides
+- [Challenges and Learnings](docs/CHALLENGES_AND_LEARNINGS.md) - Project development insights
 
 ---
 
