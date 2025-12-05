@@ -29,8 +29,11 @@ def serial_to_midi_bridge():
                     action, value = line.split(':', 1)
                     try:
                         note = int(value.strip())
-                    except ValueError:
-                        print(f"[WARN] Invalid note number: {value}")
+                        # Validate note number range
+                        if note < 0 or note > 127:
+                            raise ValueError("Note number out of range")
+                    except ValueError as e:
+                        print(f"[WARN] Invalid note number: {value}. Reason: {e}")
                         continue
 
                     if action == "ON":
@@ -40,8 +43,10 @@ def serial_to_midi_bridge():
                         print(f"[DEBUG] ⏹  stop_note({note})")
                         stop_note(note)
 
-                except Exception as e:
-                    print(f"[SERIAL] ⚠️ Error: {e}")
+                # Catch and log generic error message
+                except Exception:
+                    print("[SERIAL] ⚠️ Error occurred during processing")
 
-    except Exception as e:
-        print(f"[SERIAL] ❌ Could not open port: {e}")
+    # Catch and log generic error message
+    except Exception:
+        print("[SERIAL] ❌ Could not open port")
