@@ -97,47 +97,51 @@ Faster key presses result in higher velocity values.
 
 ```mermaid
 flowchart LR
-    %% ============================
-    %% Hardware Layer
-    %% ============================
-    subgraph HW[Hardware Layer]
-        K0[Key Matrix\nEarly/Late Contacts]
+
+%% ============================
+%% Hardware Layer
+%% ============================
+subgraph HW[Hardware Layer]
+    MATRIX[Key Matrix\nEarly Contact + Late Contact]
+end
+
+%% ============================
+%% RP2040 Firmware
+%% ============================
+subgraph RP[Pico RP2040 Firmware]
+
+    subgraph CORE1[Core 1 Scanner]
+        SCAN[gpio_poll_loop\n500 Hz scan\nDebounce]
+        VEL[Velocity Calculation\nT0 to T1]
     end
 
-    %% ============================
-    %% RP2040 Firmware Layer
-    %% ============================
-    subgraph RP[Pico RP2040 Firmware]
-
-        subgraph C1[Core 1: Scanner Engine]
-            SCAN[gpio_poll_loop\n500Hz scan\nDebounce\nMatrix read]
-            VEL[Velocity Engine\nT0/T1 timestamps\nVelocity mapping]
-        end
-
-        subgraph C0[Core 0: Main Control]
-            LOOP[Main Loop\nDetect events\nGenerate NoteOn/Off]
-            USBMIDI[TinyUSB MIDI Stack\nQueue + transmit]
-        end
-
-        SCAN --> VEL --> LOOP --> USBMIDI
+    subgraph CORE0[Core 0 Main Control]
+        LOOP[Main Loop\nDetect Events\nGenerate MIDI]
+        USB[TinyUSB MIDI Stack]
     end
 
-    %% ============================
-    %% USB Transport
-    %% ============================
-    USBMIDI --> USB[USB MIDI Protocol\nNoteOn/Off + Velocity]
+end
 
-    %% ============================
-    %% Host Computer Layer
-    %% ============================
-    subgraph HOST[Host Computer (macOS)]
-        LIST[pico_listener.py\nParse USB MIDI]
-        UNIFY[unified_listener.py\nEvent router]
-        ENGINE[engine.py\nSynthesis engine\n44.1 kHz]
-        AUDIO[CoreAudio Output\nLow-latency audio]
-    end
+MATRIX --> SCAN --> VEL --> LOOP --> USB
 
-    USB --> LIST --> UNIFY --> ENGINE --> AUDIO
+%% ============================
+%% USB Transport
+%% ============================
+USB --> USBLINK[USB MIDI Protocol]
+
+%% ============================
+%% Host Computer
+%% ============================
+subgraph HOST[Host Computer]
+
+    LISTENER[pico_listener.py\nParse USB MIDI]
+    ROUTER[unified_listener.py\nRoute Events]
+    SYNTH[engine.py\nSoftware Synthesizer\n44100 Hz]
+    OUTPUT[CoreAudio Output]
+
+end
+
+USBLINK --> LISTENER --> ROUTER --> SYNTH --> OUTPUT
 ```
 
 ### Data Flow Summary
