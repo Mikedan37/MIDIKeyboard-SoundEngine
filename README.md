@@ -2,14 +2,6 @@
 
 Open-source velocity-sensitive USB MIDI keyboard controller built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis.
 
-## Hardware Gallery
-
-### PCB Layout  
-![PCB Layout](hardware/hardware_pics/pcb.png)
-
-### Electrical Schematic  
-![Schematic](hardware/hardware_pics/schematic.png)
-
 ## Quick Start
 
 ### macOS / Linux
@@ -44,6 +36,14 @@ The setup script automatically installs dependencies and configures auto-launch.
 - **Firmware**: C (Pico SDK, TinyUSB)
 - **Synthesizer**: Python (sounddevice, numpy)
 - **GUI**: Python (rumps for macOS menu bar)
+
+## Hardware Gallery
+
+### PCB Layout  
+![PCB Layout](hardware/hardware_pics/pcb.png)
+
+### Electrical Schematic  
+![Schematic](hardware/hardware_pics/schematic.png)
 
 ## Project Structure
 
