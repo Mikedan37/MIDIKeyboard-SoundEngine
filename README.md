@@ -94,30 +94,35 @@ The keyboard uses a 2-phase scanning method:
 Faster key presses result in higher velocity values.
 
 ## System Architecture
-
 ```mermaid
 flowchart TB
 
 %% ============================
 %% Hardware Layer
 %% ============================
-subgraph HW[Hardware Layer]
-    MATRIX[Key Matrix\nEarly Contact + Late Contact]
+subgraph HW["Hardware Layer"]
+    MATRIX["Key Matrix
+Early Contact + Late Contact"]
 end
 
 %% ============================
 %% RP2040 Firmware
 %% ============================
-subgraph RP[Pico RP2040 Firmware]
+subgraph RP["Pico RP2040 Firmware"]
 
-    subgraph CORE1[Core 1 Scanner]
-        SCAN[gpio_poll_loop\n500 Hz scan\nDebounce]
-        VEL[Velocity Calculation\nT0 → T1]
+    subgraph CORE1["Core 1 Scanner"]
+        SCAN["gpio_poll_loop
+500 Hz scan
+Debounce"]
+        VEL["Velocity Calculation
+T0 → T1"]
     end
 
-    subgraph CORE0[Core 0 Main Control]
-        LOOP[Main Loop\nDetect Events\nGenerate MIDI]
-        USB[TinyUSB MIDI Stack]
+    subgraph CORE0["Core 0 Main Control"]
+        LOOP["Main Loop
+Detect Events
+Generate MIDI"]
+        USB["TinyUSB MIDI Stack"]
     end
 
 end
@@ -128,17 +133,21 @@ MATRIX --> SCAN --> VEL --> LOOP --> USB
 %% ============================
 %% USB Transport
 %% ============================
-USB --> USBLINK[USB MIDI Protocol]
+USB --> USBLINK["USB MIDI Protocol"]
 
 %% ============================
 %% Host Computer
 %% ============================
-subgraph HOST[Host Computer Pipeline]
+subgraph HOST["Host Computer Pipeline"]
 
-    LISTENER[pico_listener.py\nParse USB MIDI]
-    ROUTER[unified_listener.py\nRoute Events]
-    SYNTH[engine.py\nAudio Synthesis\n44100 Hz]
-    OUTPUT[CoreAudio Output]
+    LISTENER["pico_listener.py
+Parse USB MIDI"]
+    ROUTER["unified_listener.py
+Route Events"]
+    SYNTH["engine.py
+Audio Synthesis
+44100 Hz"]
+    OUTPUT["CoreAudio Output"]
 
 end
 
