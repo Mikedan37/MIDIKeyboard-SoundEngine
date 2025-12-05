@@ -1,1 +1,0 @@
-Velocity-sensitive USB MIDI keyboard controller with real-time polyphonic synthesis. Built on Raspberry Pi Pico (RP2040) with Python synthesizer engine. Features 25 velocity-sensitive keys, plug-and-play USB MIDI, and cross-platform support.
