@@ -112,6 +112,8 @@ See [INSTALL.md](INSTALL.md) for detailed installation instructions.
 
 ## Architecture
 
+<div align="center">
+
 ### Hardware Components
 
 | Component | Description |
@@ -129,6 +131,8 @@ See [INSTALL.md](INSTALL.md) for detailed installation instructions.
 | **Synthesizer** | Python (sounddevice, numpy) |
 | **GUI** | Python (rumps for macOS menu bar) |
 | **Build System** | CMake |
+
+</div>
 
 ### System Architecture
 
