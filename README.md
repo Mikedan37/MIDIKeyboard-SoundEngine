@@ -1,118 +1,131 @@
 # MIDI Keyboard
 
-Open-source velocity-sensitive USB MIDI keyboard controller built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis.
+> Open-source velocity-sensitive USB MIDI keyboard controller built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)]()
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Senior Design Poster](#senior-design-poster)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Hardware Gallery](#hardware-gallery)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [How It Works](#how-it-works)
+- [MIDI Protocol](#midi-protocol)
+- [Testing](#testing)
+- [Configuration](#configuration)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+- [Authors](#authors)
+
+---
+
+## Overview
+
+This project implements a complete velocity-sensitive MIDI keyboard system consisting of:
+
+- **Hardware**: Custom 2×25 keyboard matrix with dual-contact velocity detection
+- **Firmware**: Real-time key scanning and MIDI message generation on Raspberry Pi Pico
+- **Software**: Polyphonic audio synthesizer with macOS menu bar integration
+
+The system uses a dual-core architecture to achieve low-latency key detection and MIDI transmission, enabling expressive musical performance with velocity-sensitive control.
 
 ## Senior Design Poster
 
 [View Senior Design Poster PDF](docs/SeniorDesignPosterBoard.pdf)
 
+---
+
+## Features
+
+- **Velocity-Sensitive Keys**: 2×25 matrix with early/late contact detection for accurate velocity measurement (1-127 MIDI range)
+- **Real-Time Synthesis**: Pure Python synthesizer with polyphonic playback supporting all 25 keys simultaneously
+- **macOS Integration**: Native menu bar application with live MIDI note display and system integration
+- **Plug-and-Play**: USB MIDI device class - no drivers required on any platform
+- **Hardware-Agnostic Testing**: Comprehensive test suite that validates functionality without physical hardware
+- **Dual-Core Processing**: Leverages RP2040's dual cores for parallel GPIO scanning and USB communication
+- **Cross-Platform**: Works on macOS, Windows, and Linux with automatic setup scripts
+
+---
+
 ## Quick Start
 
 ### macOS / Linux
+
 ```bash
 ./setup.sh
 ```
 
 ### Windows
+
 ```powershell
 .\setup.ps1
 ```
 
-The setup script automatically installs dependencies and configures auto-launch. See [INSTALL.md](INSTALL.md) for detailed instructions.
+The setup script automatically:
+- Installs Python dependencies
+- Sets up virtual environment
+- Configures auto-launch (LaunchAgent/systemd/Task Scheduler)
+- Detects Pico connection and launches synthesizer
 
-## Features
+See [INSTALL.md](INSTALL.md) for detailed installation instructions.
 
-- **Velocity-Sensitive Keys**: 2×25 matrix with early/late contact detection for accurate velocity measurement
-- **Real-Time Synthesis**: Pure Python synthesizer with polyphonic playback
-- **macOS Integration**: Menu bar app with live MIDI note display
-- **Plug-and-Play**: USB MIDI device, no drivers required
-- **Hardware-Agnostic Testing**: Comprehensive test suite that runs without hardware
-
-## Architecture
-
-### Hardware
-- **Microcontroller**: Raspberry Pi Pico (RP2040)
-- **Matrix**: 2×25 velocity-sensitive keyboard (25 keys total)
-- **Interface**: MSQT32 shift registers for column reading
-- **Communication**: USB MIDI over USB
-
-### Software
-- **Firmware**: C (Pico SDK, TinyUSB)
-- **Synthesizer**: Python (sounddevice, numpy)
-- **GUI**: Python (rumps for macOS menu bar)
+---
 
 ## Hardware Gallery
 
 <div align="center">
 
 ### PCB Layout
+
 <img src="hardware/hardware_pics/pcb.png" alt="PCB Layout" width="800"/>
 
+*Complete PCB design showing 2×25 keyboard matrix, MSQT32 shift registers, and Raspberry Pi Pico integration*
+
 ### Electrical Schematic
+
 <img src="hardware/hardware_pics/schematic.png" alt="Electrical Schematic" width="800"/>
 
+*Full circuit schematic including velocity detection matrix, shift register interface, and USB MIDI connections*
+
 ### Design Files
-- [Flux Project File](hardware/mikeld37-midi-keyboard.flx) - Complete PCB design in Flux format
+
+- **[Flux Project File](hardware/mikeld37-midi-keyboard.flx)** - Complete PCB design in Flux format
 
 </div>
 
-## Project Structure
+---
 
-```
-.
-├── qwerty_midi_pico/          # Pico firmware
-│   ├── drivers/               # Hardware drivers
-│   │   ├── current/           # Active drivers
-│   │   └── legacy/            # Legacy drivers
-│   ├── tests/                 # Test suite
-│   └── FLASH.md               # Firmware flashing guide
-│
-├── midi_sound_engine/          # Python synthesizer
-│   ├── engine.py               # Core synthesis engine
-│   ├── synth_menu.py           # macOS menu bar GUI
-│   └── monitor_and_launch.py   # Auto-launch script
-│
-└── docs/                       # Documentation
-    ├── architecture/           # System design
-    ├── hardware/               # Hardware docs
-    ├── implementation/         # Implementation guides
-    └── testing/                # Testing docs
-```
+## Architecture
 
-## Installation
+### Hardware Components
 
-See [INSTALL.md](INSTALL.md) for detailed installation instructions.
+| Component | Description |
+|-----------|-------------|
+| **Microcontroller** | Raspberry Pi Pico (RP2040) |
+| **Keyboard Matrix** | 2×25 velocity-sensitive matrix (25 keys total) |
+| **Interface** | MSQT32 shift registers for 24-bit column reading |
+| **Communication** | USB MIDI over USB 2.0 |
 
-### Prerequisites
+### Software Stack
 
-- Python 3.9+
-- Raspberry Pi Pico (RP2040)
-- CMake 3.13+ (for firmware development)
+| Layer | Technology |
+|-------|------------|
+| **Firmware** | C (Pico SDK, TinyUSB) |
+| **Synthesizer** | Python (sounddevice, numpy) |
+| **GUI** | Python (rumps for macOS menu bar) |
+| **Build System** | CMake |
 
-### Building Firmware
+### System Architecture
 
-```bash
-cd qwerty_midi_pico
-mkdir build && cd build
-cmake ..
-make
-```
-
-Flash the `.uf2` file to your Pico by holding BOOTSEL and connecting via USB. See [qwerty_midi_pico/FLASH.md](qwerty_midi_pico/FLASH.md) for details.
-
-## How It Works
-
-### Velocity Detection
-
-The keyboard uses a 2-phase scanning method:
-
-1. **Early Contact (ROW0)**: Detects first touch → records timestamp T₀
-2. **Late Contact (ROW1)**: Detects full press → records timestamp T₁
-3. **Velocity Calculation**: `velocity = f(T₁ - T₀)` → MIDI velocity (1-127)
-
-Faster key presses result in higher velocity values.
-
-## System Architecture
 ```mermaid
 flowchart TB
 
@@ -212,90 +225,138 @@ sequenceDiagram
     HOST->>HOST: Parse → Synthesize → Audio Output
 ```
 
+---
+
+## Installation
+
+### Prerequisites
+
+- **Python**: 3.9 or higher
+- **Hardware**: Raspberry Pi Pico (RP2040)
+- **Build Tools**: CMake 3.13+ (for firmware development)
+
+### Automated Setup
+
+Run the platform-specific setup script:
+
+**macOS/Linux:**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+**Windows:**
+```powershell
+.\setup.ps1
+```
+
+### Manual Installation
+
+See [INSTALL.md](INSTALL.md) for detailed manual installation instructions.
+
+### Building Firmware
+
+```bash
+cd qwerty_midi_pico
+mkdir build && cd build
+cmake ..
+make
+```
+
+Flash the generated `.uf2` file to your Pico by:
+1. Hold the BOOTSEL button on the Pico
+2. Connect via USB while holding BOOTSEL
+3. Release BOOTSEL
+4. Copy the `.uf2` file to the mounted drive
+
+See [qwerty_midi_pico/FLASH.md](qwerty_midi_pico/FLASH.md) for detailed flashing instructions.
+
+---
+
+## How It Works
+
+### Velocity Detection
+
+The keyboard uses a 2-phase scanning method to measure key press velocity:
+
+1. **Early Contact (ROW0)**: Detects first touch → records timestamp T₀
+2. **Late Contact (ROW1)**: Detects full press → records timestamp T₁
+3. **Velocity Calculation**: `velocity = f(T₁ - T₀)` → MIDI velocity (1-127)
+
+**Formula:**
+```
+velocity = 127 - ((Δt - 100μs) × 126) / 49,900μs
+```
+
+Where:
+- `Δt` = Time difference between early and late contact
+- Faster key presses (shorter Δt) result in higher velocity values
+- Range: 1 (slowest) to 127 (fastest)
+
+### Matrix Scanning
+
+- **Scan Rate**: 500 Hz (2ms per cycle)
+- **Method**: Two-phase scanning (ROW0, then ROW1)
+- **Columns**: Read via MSQT32 shift registers (24-bit parallel read)
+- **Debouncing**: 5ms software debounce per key
+
+### Dual-Core Architecture
+
+The RP2040's dual-core architecture enables parallel processing:
+
+- **Core 1**: Dedicated to continuous GPIO polling and velocity calculation
+- **Core 0**: Handles USB MIDI stack and main event loop
+- **Communication**: Shared memory for key state synchronization
+
+This architecture ensures low-latency key detection while maintaining responsive USB communication.
+
+---
+
 ## MIDI Protocol
 
-### What is MIDI?
+### Overview
 
-MIDI (Musical Instrument Digital Interface) is a technical standard that describes a communications protocol, digital interface, and electrical connectors for connecting musical instruments, computers, and related audio devices. MIDI enables devices to communicate musical information in real-time.
+MIDI (Musical Instrument Digital Interface) is the industry-standard protocol for musical instrument communication. This project implements USB MIDI, transmitting standard MIDI messages over USB.
 
-### How This Project Uses MIDI
-
-This project implements USB MIDI, which uses the MIDI protocol over USB connections. The firmware generates standard MIDI messages that are transmitted asynchronously to the host computer.
-
-### MIDI Messages Used
+### Message Format
 
 **Note ON Messages:**
-- Format: `0x90 | channel, note_number, velocity`
-- Sent when a key is pressed
-- Includes velocity data (1-127) for dynamic expression
-- Example: Key pressed with velocity 100 → `[0x90, 60, 100]` (Note C4, velocity 100)
+```
+Format: [0x90 | channel, note_number, velocity]
+Example: [0x90, 60, 100] → Note C4, velocity 100, Channel 0
+```
 
 **Note OFF Messages:**
-- Format: `0x80 | channel, note_number, 0`
-- Sent when a key is released
-- Ensures clean note termination
-- Example: Key released → `[0x80, 60, 0]` (Note C4 off)
+```
+Format: [0x80 | channel, note_number, 0]
+Example: [0x80, 60, 0] → Note C4 off, Channel 0
+```
 
-**Polyphonic Support:**
-- Multiple Note ON messages can be sent simultaneously
-- Each key generates independent MIDI messages
-- Supports full polyphony (all 25 keys can play simultaneously)
-- Messages are queued and transmitted asynchronously
+### Key Features
 
-### MIDI Advantages Over Other Protocols
+- **Universal Compatibility**: Works with all MIDI-compatible software (DAWs, synthesizers, sequencers)
+- **Low Latency**: 3-byte messages enable real-time performance
+- **Polyphonic**: Supports all 25 keys simultaneously
+- **Velocity Sensitivity**: Full 1-127 velocity range for expressive control
+- **Plug-and-Play**: No drivers required on any platform
 
-**1. Universal Compatibility:**
-- MIDI is the industry standard for musical instrument communication
-- Works with virtually all music software (DAWs, synthesizers, sequencers)
-- No proprietary drivers required - plug-and-play on all operating systems
+### Advantages
 
-**2. Low Latency:**
-- MIDI messages are small (3 bytes for Note ON/OFF)
-- Minimal processing overhead
-- Real-time transmission suitable for live performance
-- Asynchronous transmission doesn't block other operations
+1. **Industry Standard**: Universal compatibility across all music software
+2. **Low Bandwidth**: Efficient 3-byte messages
+3. **Real-Time**: Suitable for live performance
+4. **Extensible**: Supports additional MIDI controllers and parameters
+5. **Hardware Abstraction**: Software can interpret MIDI independently
 
-**3. Rich Musical Data:**
-- Velocity sensitivity (1-127) provides expressive control
-- Standard note numbering (0-127) maps directly to musical pitches
-- Extensible protocol supports additional controllers and parameters
+For detailed MIDI protocol documentation, see [docs/MIDI_PROTOCOL_THEORY.md](docs/MIDI_PROTOCOL_THEORY.md).
 
-**4. Polyphonic Capability:**
-- Each note is independent - true polyphonic expression
-- Multiple simultaneous notes don't interfere with each other
-- Standard protocol handles polyphony natively
-
-**5. Software Integration:**
-- Direct compatibility with audio software (Logic, Ableton, GarageBand, etc.)
-- Can route to any MIDI-compatible synthesizer or sampler
-- Enables recording, sequencing, and real-time processing
-
-**6. Hardware Abstraction:**
-- MIDI abstracts physical key presses into musical events
-- Software can interpret MIDI data independently of hardware
-- Enables remapping, transposition, and effects processing
-
-### MIDI Implementation Details
-
-**USB MIDI Class:**
-- Uses USB MIDI Class specification (part of USB Audio Class)
-- Standard USB device class - no custom drivers needed
-- Works on macOS, Windows, and Linux without configuration
-
-**Message Format:**
-- 3-byte messages for Note ON/OFF
-- First byte: Status (0x90 = Note ON, 0x80 = Note OFF)
-- Second byte: Note number (0-127, MIDI note 60 = C4)
-- Third byte: Velocity (1-127 for Note ON, 0 for Note OFF)
-
-**Transmission:**
-- Asynchronous USB transmission via TinyUSB stack
-- Non-blocking operation - doesn't delay GPIO scanning
-- Core 0 handles USB tasks independently of Core 1 GPIO polling
+---
 
 ## Testing
 
-The project includes a comprehensive test suite that validates the velocity calculation algorithm without requiring hardware:
+The project includes a comprehensive test suite that validates functionality without requiring physical hardware.
+
+### Running Tests
 
 ```bash
 cd qwerty_midi_pico/tests
@@ -303,55 +364,124 @@ make test_velocity_simple
 ./test_velocity_simple
 ```
 
+### Test Coverage
+
+- Velocity calculation algorithm
+- Key state management
+- Debouncing logic
+- Matrix scanning simulation
+- MIDI message generation
+
+See [docs/testing/TESTING_GUIDE.md](docs/testing/TESTING_GUIDE.md) for detailed testing documentation.
+
+---
+
 ## Configuration
 
 ### Pin Assignments
 
-Update these in `qwerty_midi_pico/drivers/current/velocity_matrix.h`:
+Update GPIO pin assignments in the driver headers:
+
+**`qwerty_midi_pico/drivers/current/velocity_matrix.h`:**
 ```c
 #define ROW0_PIN 6   // Early contact row
 #define ROW1_PIN 7   // Late contact row
 ```
 
-Update in `qwerty_midi_pico/drivers/current/msqt32_shift_register.h`:
+**`qwerty_midi_pico/drivers/current/msqt32_shift_register.h`:**
 ```c
-#define SHIFT_DATA_PIN  10  // MSQT32 data
+#define SHIFT_DATA_PIN  10  // MSQT32 data input
 #define SHIFT_CLOCK_PIN 11  // MSQT32 clock
 #define SHIFT_LATCH_PIN 12  // MSQT32 latch
 ```
 
 ### MIDI Note Mapping
 
-Edit `qwerty_midi_pico/main.c` to change key-to-note mappings:
+Edit `qwerty_midi_pico/main.c` to customize key-to-note mappings:
+
 ```c
 const uint8_t midi_notes[NUM_KEYS] = {
-    60, 61, 62, ...  // C4, C#4, D4, ...
+    60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75,
+    76, 77, 78, 79, 80, 81, 82, 83, 84  // C4 to C6
 };
 ```
 
+### Velocity Calibration
+
+Adjust velocity calculation parameters in `velocity_matrix.h`:
+
+```c
+#define MIN_VELOCITY_TIME_US 100      // Fastest press (velocity 127)
+#define MAX_VELOCITY_TIME_US 50000    // Slowest press (velocity 1)
+#define DEBOUNCE_TIME_US 5000         // Debounce delay
+```
+
+---
+
 ## Documentation
 
-Complete documentation is available in the [docs/](docs/) directory:
+Complete documentation is available in the [`docs/`](docs/) directory:
+
+### Getting Started
 - [INSTALL.md](INSTALL.md) - Detailed installation guide
-- [docs/](docs/) - Complete documentation index
-- [qwerty_midi_pico/FLASH.md](qwerty_midi_pico/FLASH.md) - Firmware flashing
+- [QUICKSTART.md](docs/root_docs/QUICKSTART.md) - 5-minute quick start
+
+### Architecture & Design
+- [System Design](docs/architecture/SYSTEM_DESIGN.md) - Complete system architecture
+- [Hardware Documentation](docs/hardware/) - PCB, schematic, and hardware guides
+
+### Development
+- [Contributing Guidelines](docs/root_docs/CONTRIBUTING.md) - How to contribute
+- [Project Structure](docs/root_docs/PROJECT_STRUCTURE.md) - Code organization
+- [Firmware Flashing](qwerty_midi_pico/FLASH.md) - Pico firmware deployment
+
+### Technical Details
+- [MIDI Protocol Theory](docs/MIDI_PROTOCOL_THEORY.md) - Comprehensive MIDI documentation
+- [Theory & Calculations](docs/THEORY_AND_CALCULATIONS.md) - Mathematical foundations
+- [Testing Guide](docs/testing/TESTING_GUIDE.md) - Test suite documentation
+
+---
 
 ## Contributing
 
-Contributions are welcome! Please see [docs/root_docs/CONTRIBUTING.md](docs/root_docs/CONTRIBUTING.md) for guidelines.
+Contributions are welcome! This project follows standard open-source practices:
+
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Commit your changes** (`git commit -m 'Add amazing feature'`)
+4. **Push to the branch** (`git push origin feature/amazing-feature`)
+5. **Open a Pull Request**
+
+Please see [docs/root_docs/CONTRIBUTING.md](docs/root_docs/CONTRIBUTING.md) for detailed contribution guidelines, code style, and development workflow.
+
+---
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## Authors
 
 - **Michael Danylchuk** - Firmware, Audio Engine, macOS GUI
 - **Christopher "Zac" Hatchett** - Hardware Design, PCB, GPIO Integration
 
+---
+
 ## Acknowledgments
 
-- San Jose State University (EE198A Senior Design Project)
-- Dr. Nadir Mir - Project Mentor
-- Raspberry Pi Foundation - Pico SDK
-- TinyUSB Contributors - USB stack
+- **San Jose State University** - EE198A Senior Design Project
+- **Dr. Nadir Mir** - Project Mentor
+- **Raspberry Pi Foundation** - Pico SDK and hardware platform
+- **TinyUSB Contributors** - USB MIDI stack implementation
+
+---
+
+<div align="center">
+
+**Built with ❤️ for the open-source community**
+
+[Report Bug](https://github.com/Mikedan37/MIDIKeyboard-SoundEngine/issues) · [Request Feature](https://github.com/Mikedan37/MIDIKeyboard-SoundEngine/issues) · [Documentation](docs/)
+
+</div>
