@@ -1,6 +1,6 @@
-# QWERTY MIDI Keyboard
+# MIDI Keyboard
 
-Velocity-sensitive USB keyboard that functions as both a standard QWERTY keyboard and a MIDI controller. Built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis.
+Velocity-sensitive USB MIDI keyboard controller built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis.
 
 ## Quick Start
 
@@ -14,24 +14,23 @@ Velocity-sensitive USB keyboard that functions as both a standard QWERTY keyboar
 .\setup.ps1
 ```
 
-The setup script automatically installs dependencies and configures auto-launch. See [QUICKSTART.md](QUICKSTART.md) for details.
+The setup script automatically installs dependencies and configures auto-launch. See [INSTALL.md](INSTALL.md) for detailed instructions.
 
 ## Features
 
-- **Dual Mode Operation**: Switch between QWERTY typing and MIDI controller modes
-- **Velocity-Sensitive Keys**: 2×24 matrix with early/late contact detection for accurate velocity measurement
+- **Velocity-Sensitive Keys**: 2×25 matrix with early/late contact detection for accurate velocity measurement
 - **Real-Time Synthesis**: Pure Python synthesizer with polyphonic playback
 - **macOS Integration**: Menu bar app with live MIDI note display
-- **Plug-and-Play**: USB HID + MIDI device, no drivers required
+- **Plug-and-Play**: USB MIDI device, no drivers required
 - **Hardware-Agnostic Testing**: Comprehensive test suite that runs without hardware
 
 ## Architecture
 
 ### Hardware
 - **Microcontroller**: Raspberry Pi Pico (RP2040)
-- **Matrix**: 2×24 velocity-sensitive keyboard (24 keys total)
+- **Matrix**: 2×25 velocity-sensitive keyboard (25 keys total)
 - **Interface**: MSQT32 shift registers for column reading
-- **Communication**: USB HID + MIDI over USB
+- **Communication**: USB MIDI over USB
 
 ### Software
 - **Firmware**: C (Pico SDK, TinyUSB)
@@ -148,18 +147,14 @@ const uint8_t midi_notes[NUM_KEYS] = {
 
 ## Documentation
 
-- [QUICKSTART.md](QUICKSTART.md) - 5-minute setup guide
-- [INSTALL.md](INSTALL.md) - Detailed installation
+Complete documentation is available in the [docs/](docs/) directory:
+- [INSTALL.md](INSTALL.md) - Detailed installation guide
 - [docs/](docs/) - Complete documentation index
 - [qwerty_midi_pico/FLASH.md](qwerty_midi_pico/FLASH.md) - Firmware flashing
-- [COMPATIBILITY.md](COMPATIBILITY.md) - Platform compatibility
-- [PERFORMANCE_METRICS.md](PERFORMANCE_METRICS.md) - Performance analysis
-- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Project organization
-- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Project organization
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please see [docs/root_docs/CONTRIBUTING.md](docs/root_docs/CONTRIBUTING.md) for guidelines.
 
 ## License
 
