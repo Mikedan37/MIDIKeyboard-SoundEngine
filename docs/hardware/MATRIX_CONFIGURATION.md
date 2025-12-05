@@ -1,5 +1,26 @@
 # Keyboard Matrix Configuration Guide
 
+## Hardware Reference
+
+### Circuit Schematic
+
+![Circuit Schematic](../../hardware/hardware_pics/schematic.png)
+
+Refer to the schematic to identify:
+- GPIO pin assignments for rows and columns
+- MSQT32 shift register connections (U2, U3)
+- I2C addresses (if applicable)
+- Power and ground connections
+
+### PCB Layout
+
+![PCB Layout](../../hardware/hardware_pics/pcb.png)
+
+The PCB layout shows the physical arrangement:
+- Switch positions (SW1-SW50)
+- Trace routing between components
+- Component placement and orientation
+
 ## CRITICAL: Update These Values from Your Schematic
 
 The implementation is complete, but you **MUST** update the GPIO pin assignments based on your actual hardware schematic.

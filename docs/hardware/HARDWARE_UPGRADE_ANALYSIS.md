@@ -1,5 +1,27 @@
 # Hardware Upgrade Analysis: Direct GPIO → Keyboard Matrix + I2C
 
+## Hardware Reference
+
+### Circuit Schematic
+
+![Circuit Schematic](../../hardware/hardware_pics/schematic.png)
+
+The schematic illustrates the complete hardware design:
+- **U1**: Raspberry Pi Pico (RP2040) with GPIO, I2C, and USB interfaces
+- **U2, U3**: MSQT32 shift registers for reading 24 column states each
+- **SW1-SW48**: Keyboard switches with diodes for velocity detection
+- **ROW0/ROW1**: Two-row matrix for early/late contact detection
+
+### PCB Layout
+
+![PCB Layout](../../hardware/hardware_pics/pcb.png)
+
+The PCB layout shows the physical implementation:
+- Component placement and routing
+- Two rows of switches (SW1-SW50)
+- Shift register connections
+- Pico connection zone
+
 ## Current vs. New Hardware
 
 ### Current Implementation (Simple)

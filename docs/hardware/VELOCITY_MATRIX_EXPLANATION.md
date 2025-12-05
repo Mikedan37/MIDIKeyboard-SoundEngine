@@ -1,5 +1,27 @@
 # Velocity-Sensitive Keyboard Matrix - Complete Explanation
 
+## Hardware Schematics
+
+### Circuit Schematic
+
+![Circuit Schematic](../../hardware/hardware_pics/schematic.png)
+
+The schematic shows the complete hardware architecture:
+- **U1**: Raspberry Pi Pico (RP2040) microcontroller
+- **U2, U3**: MSQT32 shift registers for reading 24 column states
+- **SW1-SW48**: Keyboard switches with diodes (D1-D48)
+- **ROW0/ROW1**: Two rows for velocity detection (early/late contact)
+
+### PCB Layout
+
+![PCB Layout](../../hardware/hardware_pics/pcb.png)
+
+The PCB layout shows:
+- **Zone Component**: Raspberry Pi Pico connection point (top-center)
+- **SW1-SW50**: Switch components arranged in two rows
+- **Routing**: Multi-layer traces connecting switches to shift registers and Pico
+- **Column Connections**: Purple traces carrying 24-bit data from shift registers
+
 ## Hardware Architecture
 
 ### Matrix Configuration
