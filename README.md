@@ -212,6 +212,21 @@ const uint8_t midi_notes[NUM_KEYS] = {
     60, 61, 62, ...  // C4, C#4, D4, ...
 };
 ```
+## Event Flow Example (Note On)
+
+```mermaid
+sequenceDiagram
+    participant HW as Key Matrix
+    participant FW as RP2040 Firmware
+    participant USBM as USB MIDI
+    participant HOST as Host Synth
+
+    HW->>FW: Early/Late Contact (T0/T1)
+    FW->>FW: Velocity Calculation
+    FW->>USBM: 0x09 0x90 0x3C 0x64
+    USBM->>HOST: USB-MIDI Event Packet
+    HOST->>HOST: Parse → Synthesize → Audio Output
+```
 
 ## Documentation
 
