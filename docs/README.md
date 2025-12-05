@@ -32,6 +32,7 @@ Complete documentation for the QWERTY MIDI Keyboard project.
 ## Project Reflection
 
 - [Challenges and Learnings](CHALLENGES_AND_LEARNINGS.md) - Technical challenges, solutions, and lessons learned from this SJSU EE capstone project
+- [Symposium Q&A Guide](SYMPOSIUM_QA.md) - Anticipated questions and answers for symposium presentation
 
 ## Archive
 
