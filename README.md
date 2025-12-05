@@ -96,7 +96,7 @@ Faster key presses result in higher velocity values.
 ## System Architecture
 
 ```mermaid
-flowchart LR
+flowchart TB
 
 %% ============================
 %% Hardware Layer
@@ -112,7 +112,7 @@ subgraph RP[Pico RP2040 Firmware]
 
     subgraph CORE1[Core 1 Scanner]
         SCAN[gpio_poll_loop\n500 Hz scan\nDebounce]
-        VEL[Velocity Calculation\nT0 to T1]
+        VEL[Velocity Calculation\nT0 → T1]
     end
 
     subgraph CORE0[Core 0 Main Control]
@@ -122,6 +122,7 @@ subgraph RP[Pico RP2040 Firmware]
 
 end
 
+%% Sequence
 MATRIX --> SCAN --> VEL --> LOOP --> USB
 
 %% ============================
@@ -132,11 +133,11 @@ USB --> USBLINK[USB MIDI Protocol]
 %% ============================
 %% Host Computer
 %% ============================
-subgraph HOST[Host Computer]
+subgraph HOST[Host Computer Pipeline]
 
     LISTENER[pico_listener.py\nParse USB MIDI]
     ROUTER[unified_listener.py\nRoute Events]
-    SYNTH[engine.py\nSoftware Synthesizer\n44100 Hz]
+    SYNTH[engine.py\nAudio Synthesis\n44100 Hz]
     OUTPUT[CoreAudio Output]
 
 end
