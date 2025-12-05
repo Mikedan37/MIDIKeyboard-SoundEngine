@@ -4,7 +4,9 @@ Open-source velocity-sensitive USB MIDI keyboard controller built on the Raspber
 
 ## Senior Design Poster
 
-[![Senior Design Poster](docs/SeniorDesignPosterBoard.pdf)](docs/SeniorDesignPosterBoard.pdf)
+[View Senior Design Poster](docs/SeniorDesignPosterBoard.pdf)
+
+<embed src="docs/SeniorDesignPosterBoard.pdf" type="application/pdf" width="100%" height="600px" />
 
 ## Quick Start
 
