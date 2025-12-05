@@ -93,116 +93,51 @@ The keyboard uses a 2-phase scanning method:
 
 Faster key presses result in higher velocity values.
 
-### System Architecture
+## System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    HARDWARE LAYER                               │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐         │
-│  │  Key 0   │  │  Key 1   │  │  Key 2   │  │  Key N   │         │
-│  │ (Press)  │  │ (Press)  |  │ (Press)  │  │ (Press)  │         │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘         │
-│       │             │             │             │               │
-│       └─────────────┴─────────────┴─────────────┘               │
-│                          │                                      │
-│                   2×25 Matrix                                   │
-│              (Early/Late Contact)                               │
-└──────────────────────────┼──────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              RASPBERRY PI PICO (RP2040)                         │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │  CORE 0 (Main Core)                                      │   │
-│  │  ┌────────────────────────────────────────────────────┐  │   │
-│  │  │  USB MIDI Stack (TinyUSB)                          │  │   │
-│  │  │  • tud_task() - USB event processing               │  │   │
-│  │  │  • MIDI message queuing                            │  │   │
-│  │  │  • Asynchronous USB transmission                   │  │   │
-│  │  └────────────────────────────────────────────────────┘  │   │
-│  │                                                          │   │
-│  │  ┌────────────────────────────────────────────────────┐  │   │
-│  │  │  Main Loop                                         │  │   │
-│  │  │  • Polls key states from Core 1                    │  │   │
-│  │  │  • Detects key press/release events                │  │   │
-│  │  │  • Generates MIDI Note ON/OFF messages             │  │   │
-│  │  │  • Sends to USB MIDI stack                         │  │   │
-│  │  └────────────────────────────────────────────────────┘  │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│                           ↕ IPC                                 │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │  CORE 1 (Secondary Core)                                 │   │ 
-│  │  ┌────────────────────────────────────────────────────┐  │   │
-│  │  │  GPIO Polling Loop (gpio_poll_loop)                │  │   │
-│  │  │  • 500Hz scan rate (2ms cycles)                    │  │   │
-│  │  │  • 2-phase matrix scanning                         │  │   │
-│  │  │  • Velocity calculation                            │  │   │
-│  │  │  • Debouncing                                      │  │   │
-│  │  │  • Updates shared key state array                  │  │   │
-│  │  └────────────────────────────────────────────────────┘  │   │
-│  │                                                          │   │
-│  │  ┌────────────────────────────────────────────────────┐  │   │
-│  │  │  Velocity Matrix Driver                            │  │   │
-│  │  │  • ROW0 (early contact) → Timestamp T₀             │  │   │
-│  │  │  • ROW1 (late contact) → Timestamp T₁              │  │   │
-│  │  │  • Velocity = f(T₁ - T₀) → MIDI velocity (1-127)   │  │   │
-│  │  └────────────────────────────────────────────────────┘  │   │
-│  │                                                          │   │
-│  │  ┌────────────────────────────────────────────────────┐  │   │
-│  │  │  MSQT32 Shift Register Driver                      │  │   │
-│  │  │  • Reads 24-bit column states                      │  │   │
-│  │  │  • DATA, CLOCK, LATCH control                      │  │   │
-│  │  └────────────────────────────────────────────────────┘  │   │
-│  └──────────────────────────────────────────────────────────┘   │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-                            ▼ USB MIDI
-┌─────────────────────────────────────────────────────────────────┐
-│                    USB MIDI PROTOCOL                            │
-│  • Polyphonic Note ON/OFF messages                              │
-│  • Velocity data (1-127)                                        │
-│  • Asynchronous transmission                                    │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              MAC/COMPUTER (Host System)                         │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │  MIDI Input Listener (pico_listener.py)                  │   │
-│  │  • Receives USB MIDI messages                            │   │
-│  │  • Parses Note ON/OFF events                             │   │
-│  │  • Thread-safe event queue                               │   │
-│  └───────────────────────────┬──────────────────────────────┘   │
-│                              │                                  │
-│                              ▼                                  │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │  Unified Listener (unified_listener.py)                  │   │
-│  │  • Coordinates multiple input sources                    │   │
-│  │  • Manages MIDI event routing                            │   │
-│  └───────────────────────────┬──────────────────────────────┘   │
-│                              │                                  │
-│                              ▼                                  │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │  Audio Engine (engine.py)                                │   │
-│  │  • Polyphonic note management                            │   │
-│  │  • Real-time synthesis (44100 Hz)                        │   │
-│  │  • Thread-safe note state tracking                       │   │
-│  │  • Frequency calculation from MIDI notes                 │   │
-│  └───────────────────────────┬──────────────────────────────┘   │
-│                              │                                  │
-│                              ▼                                  │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │  Core Audio (macOS) / Audio System                       │   │
-│  │  • Low-latency audio output                              │   │
-│  │  • Hardware-accelerated playback                         │   │
-│  │  • Multi-channel audio support                           │   │
-│  └───────────────────────────┬──────────────────────────────┘   │
-│                              │                                  │
-│                              ▼                                  │
-│                       AUDIO OUTPUT                              │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    %% ============================
+    %% Hardware Layer
+    %% ============================
+    subgraph HW[Hardware Layer]
+        K0[Key Matrix\nEarly/Late Contacts]
+    end
+
+    %% ============================
+    %% RP2040 Firmware Layer
+    %% ============================
+    subgraph RP[Pico RP2040 Firmware]
+
+        subgraph C1[Core 1: Scanner Engine]
+            SCAN[gpio_poll_loop\n500Hz scan\nDebounce\nMatrix read]
+            VEL[Velocity Engine\nT0/T1 timestamps\nVelocity mapping]
+        end
+
+        subgraph C0[Core 0: Main Control]
+            LOOP[Main Loop\nDetect events\nGenerate NoteOn/Off]
+            USBMIDI[TinyUSB MIDI Stack\nQueue + transmit]
+        end
+
+        SCAN --> VEL --> LOOP --> USBMIDI
+    end
+
+    %% ============================
+    %% USB Transport
+    %% ============================
+    USBMIDI --> USB[USB MIDI Protocol\nNoteOn/Off + Velocity]
+
+    %% ============================
+    %% Host Computer Layer
+    %% ============================
+    subgraph HOST[Host Computer (macOS)]
+        LIST[pico_listener.py\nParse USB MIDI]
+        UNIFY[unified_listener.py\nEvent router]
+        ENGINE[engine.py\nSynthesis engine\n44.1 kHz]
+        AUDIO[CoreAudio Output\nLow-latency audio]
+    end
+
+    USB --> LIST --> UNIFY --> ENGINE --> AUDIO
 ```
 
 ### Data Flow Summary
