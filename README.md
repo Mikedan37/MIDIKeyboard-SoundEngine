@@ -228,6 +228,87 @@ Faster key presses result in higher velocity values.
 - Audio engine processes polyphonically
 - Core Audio outputs to speakers
 
+## MIDI Protocol
+
+### What is MIDI?
+
+MIDI (Musical Instrument Digital Interface) is a technical standard that describes a communications protocol, digital interface, and electrical connectors for connecting musical instruments, computers, and related audio devices. MIDI enables devices to communicate musical information in real-time.
+
+### How This Project Uses MIDI
+
+This project implements USB MIDI, which uses the MIDI protocol over USB connections. The firmware generates standard MIDI messages that are transmitted asynchronously to the host computer.
+
+### MIDI Messages Used
+
+**Note ON Messages:**
+- Format: `0x90 | channel, note_number, velocity`
+- Sent when a key is pressed
+- Includes velocity data (1-127) for dynamic expression
+- Example: Key pressed with velocity 100 → `[0x90, 60, 100]` (Note C4, velocity 100)
+
+**Note OFF Messages:**
+- Format: `0x80 | channel, note_number, 0`
+- Sent when a key is released
+- Ensures clean note termination
+- Example: Key released → `[0x80, 60, 0]` (Note C4 off)
+
+**Polyphonic Support:**
+- Multiple Note ON messages can be sent simultaneously
+- Each key generates independent MIDI messages
+- Supports full polyphony (all 25 keys can play simultaneously)
+- Messages are queued and transmitted asynchronously
+
+### MIDI Advantages Over Other Protocols
+
+**1. Universal Compatibility:**
+- MIDI is the industry standard for musical instrument communication
+- Works with virtually all music software (DAWs, synthesizers, sequencers)
+- No proprietary drivers required - plug-and-play on all operating systems
+
+**2. Low Latency:**
+- MIDI messages are small (3 bytes for Note ON/OFF)
+- Minimal processing overhead
+- Real-time transmission suitable for live performance
+- Asynchronous transmission doesn't block other operations
+
+**3. Rich Musical Data:**
+- Velocity sensitivity (1-127) provides expressive control
+- Standard note numbering (0-127) maps directly to musical pitches
+- Extensible protocol supports additional controllers and parameters
+
+**4. Polyphonic Capability:**
+- Each note is independent - true polyphonic expression
+- Multiple simultaneous notes don't interfere with each other
+- Standard protocol handles polyphony natively
+
+**5. Software Integration:**
+- Direct compatibility with audio software (Logic, Ableton, GarageBand, etc.)
+- Can route to any MIDI-compatible synthesizer or sampler
+- Enables recording, sequencing, and real-time processing
+
+**6. Hardware Abstraction:**
+- MIDI abstracts physical key presses into musical events
+- Software can interpret MIDI data independently of hardware
+- Enables remapping, transposition, and effects processing
+
+### MIDI Implementation Details
+
+**USB MIDI Class:**
+- Uses USB MIDI Class specification (part of USB Audio Class)
+- Standard USB device class - no custom drivers needed
+- Works on macOS, Windows, and Linux without configuration
+
+**Message Format:**
+- 3-byte messages for Note ON/OFF
+- First byte: Status (0x90 = Note ON, 0x80 = Note OFF)
+- Second byte: Note number (0-127, MIDI note 60 = C4)
+- Third byte: Velocity (1-127 for Note ON, 0 for Note OFF)
+
+**Transmission:**
+- Asynchronous USB transmission via TinyUSB stack
+- Non-blocking operation - doesn't delay GPIO scanning
+- Core 0 handles USB tasks independently of Core 1 GPIO polling
+
 ## Testing
 
 The project includes a comprehensive test suite that validates the velocity calculation algorithm without requiring hardware:
