@@ -52,7 +52,7 @@ The setup script automatically installs dependencies and configures auto-launch.
 <img src="hardware/hardware_pics/schematic.png" alt="Electrical Schematic" width="800"/>
 
 ### Design Files
-- [Flux Project File](hardware/mikeld37-midi-keyboard.flx) - Complete PCB design in Flux format
+ [Flux Project File](hardware/mikeld37-midi-keyboard.flx) - Complete PCB design in Flux format
 
 </div>
 
