@@ -42,23 +42,23 @@ The setup script automatically installs dependencies and configures auto-launch.
 
 ```
 .
- qwerty_midi_pico/ # Pico firmware
- drivers/ # Hardware drivers
- current/ # Active drivers
- legacy/ # Legacy drivers
- tests/ # Test suite
- FLASH.md # Firmware flashing guide
-
- midi_sound_engine/ # Python synthesizer
- engine.py # Core synthesis engine
- synth_menu.py # macOS menu bar GUI
- monitor_and_launch.py # Auto-launch script
-
- docs/ # Documentation
- architecture/ # System design
- hardware/ # Hardware docs
- implementation/ # Implementation guides
- testing/ # Testing docs
+├── qwerty_midi_pico/          # Pico firmware
+│   ├── drivers/               # Hardware drivers
+│   │   ├── current/           # Active drivers
+│   │   └── legacy/            # Legacy drivers
+│   ├── tests/                 # Test suite
+│   └── FLASH.md               # Firmware flashing guide
+│
+├── midi_sound_engine/          # Python synthesizer
+│   ├── engine.py              # Core synthesis engine
+│   ├── synth_menu.py           # macOS menu bar GUI
+│   └── monitor_and_launch.py   # Auto-launch script
+│
+└── docs/                       # Documentation
+    ├── architecture/           # System design
+    ├── hardware/               # Hardware docs
+    ├── implementation/         # Implementation guides
+    └── testing/                # Testing docs
 ```
 
 ## Installation
@@ -98,15 +98,15 @@ Faster key presses result in higher velocity values.
 
 ```
 Physical Key Press
- ↓
+    ↓
 Early Contact (ROW0) → Timestamp T₀
- ↓
+    ↓
 Late Contact (ROW1) → Timestamp T₁
- ↓
+    ↓
 Velocity = f(T₁ - T₀)
- ↓
+    ↓
 MIDI Note ON with Velocity
- ↓
+    ↓
 Python Synthesizer → Audio Output
 ```
 
@@ -126,15 +126,15 @@ make test_velocity_simple
 
 Update these in `qwerty_midi_pico/drivers/current/velocity_matrix.h`:
 ```c
-#define ROW0_PIN 6 // Early contact row
-#define ROW1_PIN 7 // Late contact row
+#define ROW0_PIN 6   // Early contact row
+#define ROW1_PIN 7   // Late contact row
 ```
 
 Update in `qwerty_midi_pico/drivers/current/msqt32_shift_register.h`:
 ```c
-#define SHIFT_DATA_PIN 10 // MSQT32 data
-#define SHIFT_CLOCK_PIN 11 // MSQT32 clock
-#define SHIFT_LATCH_PIN 12 // MSQT32 latch
+#define SHIFT_DATA_PIN  10  // MSQT32 data
+#define SHIFT_CLOCK_PIN 11  // MSQT32 clock
+#define SHIFT_LATCH_PIN 12  // MSQT32 latch
 ```
 
 ### MIDI Note Mapping
@@ -142,7 +142,7 @@ Update in `qwerty_midi_pico/drivers/current/msqt32_shift_register.h`:
 Edit `qwerty_midi_pico/main.c` to change key-to-note mappings:
 ```c
 const uint8_t midi_notes[NUM_KEYS] = {
- 60, 61, 62, ... // C4, C#4, D4, ...
+    60, 61, 62, ...  // C4, C#4, D4, ...
 };
 ```
 
@@ -154,6 +154,8 @@ const uint8_t midi_notes[NUM_KEYS] = {
 - [qwerty_midi_pico/FLASH.md](qwerty_midi_pico/FLASH.md) - Firmware flashing
 - [COMPATIBILITY.md](COMPATIBILITY.md) - Platform compatibility
 - [PERFORMANCE_METRICS.md](PERFORMANCE_METRICS.md) - Performance analysis
+- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Project organization
+- [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) - Project organization
 
 ## Contributing
 
