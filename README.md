@@ -2,13 +2,9 @@
 
 Open-source velocity-sensitive USB MIDI keyboard controller built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis.
 
-## Hardware Gallery
+## Senior Design Poster
 
-### PCB Layout  
-![PCB Layout](hardware/hardware_pics/pcb.png)
-
-### Electrical Schematic  
-![Schematic](hardware/hardware_pics/schematic.png)
+[![Senior Design Poster](docs/SeniorDesignPosterBoard.pdf)](docs/SeniorDesignPosterBoard.pdf)
 
 ## Quick Start
 
@@ -52,6 +48,9 @@ The setup script automatically installs dependencies and configures auto-launch.
 
 ### Electrical Schematic  
 ![Schematic](hardware/hardware_pics/schematic.png)
+
+### Flux Design File
+[Flux Project File](hardware/mikeld37-midi-keyboard.flx) - Complete PCB design in Flux format
 
 ## Project Structure
 
