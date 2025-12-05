@@ -40,7 +40,13 @@ The system uses a dual-core architecture to achieve low-latency key detection an
 
 ## Senior Design Poster
 
-[View Senior Design Poster PDF](docs/SeniorDesignPosterBoard.pdf)
+<div align="center">
+
+**[📄 View Senior Design Poster PDF](docs/SeniorDesignPosterBoard.pdf)**
+
+*Click the link above to view the complete project poster. GitHub will open the PDF in its built-in viewer.*
+
+</div>
 
 ---
 
@@ -480,7 +486,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Built with ❤️ for the open-source community**
+**Built for the open-source community**
 
 [Report Bug](https://github.com/Mikedan37/MIDIKeyboard-SoundEngine/issues) · [Request Feature](https://github.com/Mikedan37/MIDIKeyboard-SoundEngine/issues) · [Documentation](docs/)
 
