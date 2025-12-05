@@ -49,7 +49,7 @@ The setup script automatically installs dependencies and configures auto-launch.
 │   └── FLASH.md               # Firmware flashing guide
 │
 ├── midi_sound_engine/          # Python synthesizer
-│   ├── engine.py              # Core synthesis engine
+│   ├── engine.py               # Core synthesis engine
 │   ├── synth_menu.py           # macOS menu bar GUI
 │   └── monitor_and_launch.py   # Auto-launch script
 │
