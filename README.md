@@ -1,6 +1,10 @@
-# MIDI Keyboard
+<div align="center">
 
-> Open-source velocity-sensitive USB MIDI keyboard controller built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis.
+# 🎹 MIDI Keyboard
+
+**Open-source velocity-sensitive USB MIDI keyboard controller**
+
+Built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
@@ -8,25 +12,19 @@
 
 ---
 
-## Table of Contents
+## 📑 Table of Contents
 
-- [Overview](#overview)
-- [Senior Design Poster](#senior-design-poster)
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Hardware Gallery](#hardware-gallery)
-- [Architecture](#architecture)
-- [Installation](#installation)
-- [How It Works](#how-it-works)
-- [MIDI Protocol](#midi-protocol)
-- [Testing](#testing)
-- [Configuration](#configuration)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [License](#license)
-- [Authors](#authors)
+| | | |
+|:---|:---|:---|
+| [Overview](#overview) | [Features](#features) | [Quick Start](#quick-start) |
+| [Hardware Gallery](#hardware-gallery) | [Architecture](#architecture) | [Installation](#installation) |
+| [How It Works](#how-it-works) | [MIDI Protocol](#midi-protocol) | [Testing](#testing) |
+| [Configuration](#configuration) | [Documentation](#documentation) | [Contributing](#contributing) |
+| [Senior Design Poster](#senior-design-poster) | [License](#license) | [Authors](#authors) |
 
 ---
+
+</div>
 
 ## Overview
 
@@ -37,6 +35,8 @@ This project implements a complete velocity-sensitive MIDI keyboard system consi
 - **Software**: Polyphonic audio synthesizer with macOS menu bar integration
 
 The system uses a dual-core architecture to achieve low-latency key detection and MIDI transmission, enabling expressive musical performance with velocity-sensitive control.
+
+---
 
 ## Senior Design Poster
 
