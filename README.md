@@ -4,16 +4,11 @@ Open-source velocity-sensitive USB MIDI keyboard controller built on the Raspber
 
 ## Hardware Gallery
 
-> Replace these filenames with your actual images.
-
 ### PCB Layout  
-![PCB Layout](docs/hardware/pcb_layout.png)
+![PCB Layout](hardware/hardware_pics/pcb.png)
 
 ### Electrical Schematic  
-![Schematic](docs/hardware/schematic.png)
-
-### Physical Prototype  
-![Prototype](docs/hardware/prototype.jpg)
+![Schematic](hardware/hardware_pics/schematic.png)
 
 ## Quick Start
 
