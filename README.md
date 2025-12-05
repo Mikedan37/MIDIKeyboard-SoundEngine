@@ -1,8 +1,12 @@
 # MIDI Keyboard
 
 Open-source velocity-sensitive USB MIDI keyboard controller built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis.
+<<<<<<< HEAD
 
 ## Senior Design Poster
+=======
+## Hardware Gallery
+>>>>>>> 6b982df8be585ea7dc192740a514c70a027779e6
 
 [![Senior Design Poster](docs/SeniorDesignPosterBoard.pdf)](docs/SeniorDesignPosterBoard.pdf)
 
@@ -194,6 +198,22 @@ USBLINK --> LISTENER --> ROUTER --> SYNTH --> OUTPUT
 - Audio engine processes polyphonically
 - Core Audio outputs to speakers
 
+### Event Flow Example (Note On)
+
+```mermaid
+sequenceDiagram
+    participant HW as Key Matrix
+    participant FW as RP2040 Firmware
+    participant USBM as USB MIDI
+    participant HOST as Host Synth
+
+    HW->>FW: Early/Late Contact (T0/T1)
+    FW->>FW: Velocity Calculation
+    FW->>USBM: 0x09 0x90 0x3C 0x64
+    USBM->>HOST: USB-MIDI Event Packet
+    HOST->>HOST: Parse → Synthesize → Audio Output
+```
+
 ## MIDI Protocol
 
 ### What is MIDI?
@@ -309,21 +329,6 @@ Edit `qwerty_midi_pico/main.c` to change key-to-note mappings:
 const uint8_t midi_notes[NUM_KEYS] = {
     60, 61, 62, ...  // C4, C#4, D4, ...
 };
-```
-## Event Flow Example (Note On)
-
-```mermaid
-sequenceDiagram
-    participant HW as Key Matrix
-    participant FW as RP2040 Firmware
-    participant USBM as USB MIDI
-    participant HOST as Host Synth
-
-    HW->>FW: Early/Late Contact (T0/T1)
-    FW->>FW: Velocity Calculation
-    FW->>USBM: 0x09 0x90 0x3C 0x64
-    USBM->>HOST: USB-MIDI Event Packet
-    HOST->>HOST: Parse → Synthesize → Audio Output
 ```
 
 ## Documentation
