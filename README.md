@@ -4,9 +4,7 @@ Open-source velocity-sensitive USB MIDI keyboard controller built on the Raspber
 
 ## Senior Design Poster
 
-[![Senior Design Poster](docs/SeniorDesignPosterBoard.pdf)](docs/SeniorDesignPosterBoard.pdf)
-
-> Click the link above to view the full poster. GitHub will render the PDF inline when you click it.
+[View Senior Design Poster PDF](docs/SeniorDesignPosterBoard.pdf)
 
 ## Quick Start
 
@@ -45,14 +43,18 @@ The setup script automatically installs dependencies and configures auto-launch.
 
 ## Hardware Gallery
 
-### PCB Layout  
-![PCB Layout](hardware/hardware_pics/pcb.png)
+<div align="center">
 
-### Electrical Schematic  
-![Schematic](hardware/hardware_pics/schematic.png)
+### PCB Layout
+<img src="hardware/hardware_pics/pcb.png" alt="PCB Layout" width="800"/>
 
-### Flux Design File
-[Flux Project File](hardware/mikeld37-midi-keyboard.flx) - Complete PCB design in Flux format
+### Electrical Schematic
+<img src="hardware/hardware_pics/schematic.png" alt="Electrical Schematic" width="800"/>
+
+### Design Files
+- [Flux Project File](hardware/mikeld37-midi-keyboard.flx) - Complete PCB design in Flux format
+
+</div>
 
 ## Project Structure
 
