@@ -17,10 +17,11 @@ Built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis
 | | | |
 |:---|:---|:---|
 | [Overview](#overview) | [Features](#features) | [Quick Start](#quick-start) |
-| [Hardware Gallery](#hardware-gallery) | [Architecture](#architecture) | [Installation](#installation) |
-| [How It Works](#how-it-works) | [MIDI Protocol](#midi-protocol) | [Testing](#testing) |
-| [Configuration](#configuration) | [Documentation](#documentation) | [Contributing](#contributing) |
-| [Senior Design Poster](#senior-design-poster) | [License](#license) | [Authors](#authors) |
+| [Hardware Gallery](#hardware-gallery) | [Architecture](#architecture) | [Schematics](#schematics) |
+| [Installation](#installation) | [How It Works](#how-it-works) | [MIDI Protocol](#midi-protocol) |
+| [Testing](#testing) | [Configuration](#configuration) | [Documentation](#documentation) |
+| [Contributing](#contributing) | [Senior Design Poster](#senior-design-poster) | [License](#license) |
+| [Authors](#authors) | | |
 
 ---
 
@@ -233,6 +234,150 @@ sequenceDiagram
     FW->>USBM: 0x09 0x90 0x3C 0x64
     USBM->>HOST: USB-MIDI Event Packet
     HOST->>HOST: Parse → Synthesize → Audio Output
+```
+
+---
+
+## Schematics
+
+### Complete System Architecture
+
+This diagram illustrates the full system architecture from hardware to host software, showing all layers and data flow:
+
+```mermaid
+flowchart LR
+
+    %% =========================
+    %% HARDWARE LAYER
+    %% =========================
+    subgraph HW[Hardware Layer]
+        K[25-Key Dual-Contact<br>Matrix (Early/Late switches)]
+        SR[Shift Registers<br>(MSQT32)]
+        MCU[Raspberry Pi Pico<br>RP2040]
+    end
+    K -->|Row/Column Signals| SR
+    SR -->|Multiplexed Key States| MCU
+
+    %% =========================
+    %% FIRMWARE LAYER
+    %% =========================
+    subgraph FW[Firmware on RP2040]
+        subgraph Core1[Core 1 - High-Frequency Scanner]
+            S1[Matrix Scan Loop<br>540 Hz]
+            D1[Debounce + Edge Detection]
+            T1[Timestamp t₁ (Early Contact)]
+            T2[Timestamp t₂ (Late Contact)]
+            DT[Compute Δt = t₂ - t₁]
+            VEL[Velocity Mapping 1–127<br>v = clamp(127 - kΔt)]
+        end
+        subgraph Core0[Core 0 - Event Handler + USB Stack]
+            EV[Construct MIDI Note Event<br>Note, Velocity]
+            PKT[USB-MIDI Packet Encoder<br>4-byte Event Packet]
+            USB[TinyUSB Driver]
+        end
+        LOGF[Firmware Log Output<br>(SCAN_PERIOD, VEL_SAMPLE,<br>NOTE_EVENT, NOTE_SEND)]
+    end
+    MCU --> FW
+
+    %% Firmware Data Flow
+    S1 --> D1 --> T1
+    D1 --> T2
+    T1 --> DT
+    T2 --> DT --> VEL --> EV --> PKT --> USB --> LOGF
+
+    %% =========================
+    %% USB TRANSPORT LAYER
+    %% =========================
+    subgraph USBMIDI[USB Transport Layer]
+        UTX[USB Full-Speed 12 Mbps<br>(Polling Interval 1 ms)]
+        URX[Host USB Stack]
+    end
+    USB --> UTX --> URX
+
+    %% =========================
+    %% HOST SIDE SOFTWARE
+    %% =========================
+    subgraph HOST[Host Computer]
+        LST[MIDI Listener<br>(Python Mido)]
+        HLOG[Host Logger<br>(MIDI_EVENT t_ns)]
+        SYNTH[Polyphonic Synthesizer<br>SoundDevice Engine]
+        AC[Audio Callback<br>Real-Time Thread]
+    end
+    URX --> LST --> HLOG
+    LST --> SYNTH --> AC
+
+    %% =========================
+    %% DATA FLOW ARROWS
+    %% =========================
+    style HW fill:#f8f8ff,stroke:#555,stroke-width:1px
+    style FW fill:#eefaff,stroke:#555,stroke-width:1px
+    style USBMIDI fill:#fffce8,stroke:#555,stroke-width:1px
+    style HOST fill:#f3fff0,stroke:#555,stroke-width:1px
+```
+
+### End-to-End Data Flow
+
+This diagram shows the complete data flow from physical key press to audio output:
+
+```mermaid
+flowchart LR
+
+    K[Mechanical Key Press<br>(Physical Motion)]
+    S1[Early Contact Switch<br>t₁ Timestamp]
+    S2[Late Contact Switch<br>t₂ Timestamp]
+    DT[Velocity Δt Processing<br>Δt = t₂ - t₁]
+    EVT[Note Event Creation<br>(NOTE_EVENT)]
+    USBP[USB-MIDI Packet Encapsulation<br>4-byte CIN Packet]
+    FWTS[USB Transmit Timestamp<br>(NOTE_SEND)]
+    USB[USB Full-Speed Bus<br>12 Mbps]
+    HOST[Host USB Stack<br>URB Arrival]
+    LSN[MIDI Listener (Mido)<br>t_ns Logged]
+    SYNTH[Polyphonic Synth Engine]
+    AC[Audio Callback Execution<br>(Final Sound Output)]
+
+    K --> S1 --> S2 --> DT --> EVT --> USBP --> FWTS --> USB --> HOST --> LSN --> SYNTH --> AC
+```
+
+### Velocity Sensing Subsystem
+
+This diagram details the velocity detection mechanism:
+
+```mermaid
+flowchart TD
+
+    subgraph Keybed["Velocity Sensing Subsystem"]
+        K[Key Depressed<br>(Mechanical Motion)]
+        EC[Early Contact<br>(Switch 1: t₁)]
+        LC[Late Contact<br>(Switch 2: t₂)]
+        DT[Compute Δt = t₂ - t₁]
+        MAP[Velocity Mapping<br>v = clamp(127 - kΔt)]
+        OUT[MIDI Velocity (1–127)]
+    end
+    K --> EC --> LC --> DT --> MAP --> OUT
+```
+
+### Dual-Core Processing Architecture
+
+This diagram illustrates the parallel processing architecture using RP2040's dual cores:
+
+```mermaid
+flowchart LR
+
+    subgraph CORE1[Core 1 – Real-Time Scanner (High Priority)]
+        S1[Matrix Scan Loop<br>540 Hz]
+        ED[Edge Detection + Debounce]
+        TSTAMP[Timestamps t₁ and t₂]
+        MQ[Write Events to Shared Queue]
+    end
+    subgraph CORE0[Core 0 – Event Processor + USB Stack]
+        RQ[Read Events from Shared Queue]
+        EVT[Construct Note Event<br>(NOTE_EVENT)]
+        PKT[Build USB-MIDI Packet]
+        SEND[TinyUSB Transmission<br>(NOTE_SEND)]
+        LOGF[Firmware Log Output]
+    end
+    S1 --> ED --> TSTAMP --> MQ
+    MQ --> RQ --> EVT --> PKT --> SEND --> LOGF
 ```
 
 ---
