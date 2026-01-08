@@ -215,7 +215,7 @@ See [qwerty_midi_pico/FLASH.md](qwerty_midi_pico/FLASH.md) for detailed flashing
 
 ## 10. Hardware Documentation
 
-PCB layout and schematics are located in `hardware/`. Flux design files are included. The design emphasizes ease of repair and modification.
+PCB layout and schematics are located in `hardware/`. Flux design files are included. The design emphasizes ease of repair and modification. The schematic and PCB layout were logically verified but not fabricated. All firmware and software systems were fully implemented and validated.
 
 See [docs/hardware/](docs/hardware/) for detailed hardware documentation.
 
@@ -286,7 +286,6 @@ Complete documentation is available in the [`docs/`](docs/) directory:
 ### Technical Details
 - [Testing Guide](docs/testing/TESTING_GUIDE.md) - Test suite documentation
 - [Hardware Documentation](docs/hardware/) - Velocity matrix, PCB, and schematic guides
-- [Challenges and Learnings](docs/CHALLENGES_AND_LEARNINGS.md) - Project development insights
 
 ---
 
