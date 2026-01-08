@@ -10,7 +10,7 @@ A fully open, repairable 25-key MIDI controller with true dual-contact velocity 
 
 Most low-cost MIDI keyboards rely on simplified velocity approximations, proprietary firmware, and closed hardware designs that are difficult to repair or modify.
 
-This project was built to demonstrate that expressive, velocity-sensitive MIDI input can be achieved using fully open hardware and firmware on a commodity microcontroller, without vendor lock-in or custom drivers.
+This project demonstrates that expressive, velocity-sensitive MIDI input can be achieved using fully open hardware and firmware on a commodity microcontroller, without vendor lock-in or custom drivers.
 
 Key goals:
 1. True velocity sensing using dual-contact timing
@@ -56,23 +56,49 @@ Key goals:
 
 ## 4. System Overview
 
-End-to-end data flow:
-
-Key Press
-→ Dual-Contact Matrix (t0, t1)
-→ RP2040 Firmware
-- Core 1: scan + velocity timing
-- Core 0: MIDI event generation
-→ USB MIDI (class-compliant)
-→ Host MIDI Listener
-→ Python Synth Engine
-→ Audio Output
+Key Press → Dual-Contact Matrix (t₀, t₁) → RP2040 Firmware → USB MIDI → Host MIDI Listener → Python Synth Engine → Audio Output
 
 Velocity is calculated from the time delta between early and late contact closures and mapped to the standard MIDI velocity range (1–127).
 
+See [docs/architecture/SYSTEM_DESIGN.md](docs/architecture/SYSTEM_DESIGN.md) for detailed architecture documentation.
+
 ---
 
-## 5. Hardware Gallery
+## 5. Quick Start
+
+### 5.1 macOS / Linux
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+### 5.2 Windows
+
+```powershell
+.\setup.ps1
+```
+
+The setup scripts install Python dependencies, configure the synthesizer environment, detect the Pico automatically, and launch the audio engine.
+
+See [INSTALL.md](INSTALL.md) for manual setup instructions.
+
+---
+
+## 6. Performance Characteristics
+
+Measured during testing:
+
+- **Matrix scan rate**: Approximately 500–540 Hz on Core 1
+- **Velocity timing resolution**: On the order of tens of microseconds
+- **USB MIDI latency**: Full-speed USB with 1 ms polling interval
+- **Polyphony**: Sustained playback of all 25 keys without audio dropouts
+- **Host audio sample rate**: 44.1 kHz
+- **Core utilization**: Core 1 dedicated to scanning and timing; Core 0 handles USB stack and event processing
+
+---
+
+## 7. Hardware Gallery
 
 <div align="center">
 
@@ -96,176 +122,60 @@ Velocity is calculated from the time delta between early and late contact closur
 
 ---
 
-## 6. Schematics
+## 8. Architecture
 
-### Complete System Architecture
-
-This diagram illustrates the full system architecture from hardware to host software, showing all layers and data flow:
+High-level system architecture:
 
 ```mermaid
 flowchart LR
 
-    %% =========================
-    %% HARDWARE LAYER
-    %% =========================
     subgraph HW[Hardware Layer]
-        K["25-Key Dual-Contact Matrix (Early/Late switches)"]
+        K["25-Key Dual-Contact Matrix"]
         SR["Shift Registers (MSQT32)"]
         MCU["Raspberry Pi Pico RP2040"]
     end
     K -->|Row/Column Signals| SR
     SR -->|Multiplexed Key States| MCU
 
-    %% =========================
-    %% FIRMWARE LAYER
-    %% =========================
     subgraph FW[Firmware on RP2040]
-        subgraph Core1["Core 1 - High-Frequency Scanner"]
-            S1["Matrix Scan Loop 540 Hz"]
+        subgraph Core1["Core 1 - Scanner"]
+            S1["Matrix Scan Loop"]
             D1[Debounce + Edge Detection]
-            T1["Timestamp t₁ (Early Contact)"]
-            T2["Timestamp t₂ (Late Contact)"]
-            DT["Compute Δt = t₂ - t₁"]
-            VEL["Velocity Mapping 1–127: v = clamp(127 - kΔt)"]
+            VEL["Velocity Calculation"]
         end
-        subgraph Core0["Core 0 - Event Handler + USB Stack"]
-            EV["Construct MIDI Note Event (Note, Velocity)"]
-            PKT["USB-MIDI Packet Encoder (4-byte Event Packet)"]
+        subgraph Core0["Core 0 - USB Stack"]
+            EV["MIDI Event Generation"]
             USB[TinyUSB Driver]
         end
-        LOGF["Firmware Log Output (SCAN_PERIOD, VEL_SAMPLE, NOTE_EVENT, NOTE_SEND)"]
     end
     MCU --> FW
 
-    %% Firmware Data Flow
-    S1 --> D1 --> T1
-    D1 --> T2
-    T1 --> DT
-    T2 --> DT --> VEL --> EV --> PKT --> USB --> LOGF
+    S1 --> D1 --> VEL --> EV --> USB
 
-    %% =========================
-    %% USB TRANSPORT LAYER
-    %% =========================
-    subgraph USBMIDI[USB Transport Layer]
-        UTX["USB Full-Speed 12 Mbps (Polling Interval 1 ms)"]
+    subgraph USBMIDI[USB Transport]
+        UTX["USB Full-Speed 12 Mbps"]
         URX[Host USB Stack]
     end
     USB --> UTX --> URX
 
-    %% =========================
-    %% HOST SIDE SOFTWARE
-    %% =========================
     subgraph HOST[Host Computer]
-        LST["MIDI Listener (Python Mido)"]
-        HLOG["Host Logger (MIDI_EVENT t_ns)"]
-        SYNTH["Polyphonic Synthesizer (SoundDevice Engine)"]
-        AC["Audio Callback (Real-Time Thread)"]
+        LST[MIDI Listener]
+        SYNTH[Polyphonic Synthesizer]
+        AC[Audio Output]
     end
-    URX --> LST --> HLOG
-    LST --> SYNTH --> AC
+    URX --> LST --> SYNTH --> AC
 
-    %% =========================
-    %% DATA FLOW ARROWS
-    %% =========================
     style HW fill:#f8f8ff,stroke:#555,stroke-width:1px
     style FW fill:#eefaff,stroke:#555,stroke-width:1px
     style USBMIDI fill:#fffce8,stroke:#555,stroke-width:1px
     style HOST fill:#f3fff0,stroke:#555,stroke-width:1px
 ```
 
-### End-to-End Data Flow
-
-This diagram shows the complete data flow from physical key press to audio output:
-
-```mermaid
-flowchart LR
-
-    K["Mechanical Key Press (Physical Motion)"]
-    S1["Early Contact Switch (t₁ Timestamp)"]
-    S2["Late Contact Switch (t₂ Timestamp)"]
-    DT["Velocity Δt Processing: Δt = t₂ - t₁"]
-    EVT["Note Event Creation (NOTE_EVENT)"]
-    USBP["USB-MIDI Packet Encapsulation (4-byte CIN Packet)"]
-    FWTS["USB Transmit Timestamp (NOTE_SEND)"]
-    USB["USB Full-Speed Bus (12 Mbps)"]
-    HOST["Host USB Stack (URB Arrival)"]
-    LSN["MIDI Listener (Mido) - t_ns Logged"]
-    SYNTH[Polyphonic Synth Engine]
-    AC["Audio Callback Execution (Final Sound Output)"]
-
-    K --> S1 --> S2 --> DT --> EVT --> USBP --> FWTS --> USB --> HOST --> LSN --> SYNTH --> AC
-```
-
-### Velocity Sensing Subsystem
-
-This diagram details the velocity detection mechanism:
-
-```mermaid
-flowchart TD
-
-    subgraph Keybed["Velocity Sensing Subsystem"]
-        K["Key Depressed (Mechanical Motion)"]
-        EC["Early Contact (Switch 1: t₁)"]
-        LC["Late Contact (Switch 2: t₂)"]
-        DT["Compute Δt = t₂ - t₁"]
-        MAP["Velocity Mapping: v = clamp(127 - kΔt)"]
-        OUT["MIDI Velocity (1–127)"]
-    end
-    K --> EC --> LC --> DT --> MAP --> OUT
-```
-
-### Dual-Core Processing Architecture
-
-This diagram illustrates the parallel processing architecture using RP2040's dual cores:
-
-```mermaid
-flowchart LR
-
-    subgraph CORE1["Core 1 – Real-Time Scanner (High Priority)"]
-        S1["Matrix Scan Loop (540 Hz)"]
-        ED[Edge Detection + Debounce]
-        TSTAMP["Timestamps t₁ and t₂"]
-        MQ[Write Events to Shared Queue]
-    end
-    subgraph CORE0["Core 0 – Event Processor + USB Stack"]
-        RQ[Read Events from Shared Queue]
-        EVT["Construct Note Event (NOTE_EVENT)"]
-        PKT[Build USB-MIDI Packet]
-        SEND["TinyUSB Transmission (NOTE_SEND)"]
-        LOGF[Firmware Log Output]
-    end
-    S1 --> ED --> TSTAMP --> MQ
-    MQ --> RQ --> EVT --> PKT --> SEND --> LOGF
-```
+For detailed architecture diagrams including velocity sensing subsystem and dual-core processing flow, see [docs/architecture/SYSTEM_DESIGN.md](docs/architecture/SYSTEM_DESIGN.md).
 
 ---
 
-## 7. Quick Start
-
-### 7.1 macOS / Linux
-
-```bash
-chmod +x setup.sh
-./setup.sh
-```
-
-### 7.2 Windows
-
-```powershell
-.\setup.ps1
-```
-
-The setup scripts:
-1. Install Python dependencies
-2. Configure the synthesizer environment
-3. Detect the Pico automatically
-4. Launch the audio engine
-
-See [INSTALL.md](INSTALL.md) for manual setup instructions.
-
----
-
-## 8. Firmware Build
+## 9. Firmware Build
 
 ```bash
 cd qwerty_midi_pico
@@ -284,53 +194,45 @@ See [qwerty_midi_pico/FLASH.md](qwerty_midi_pico/FLASH.md) for detailed flashing
 
 ---
 
-## 9. Hardware Documentation
+## 10. Hardware Documentation
 
-1. PCB layout and schematics are located in `hardware/`
-2. Flux design files are included
-3. The design emphasizes ease of repair and modification
+PCB layout and schematics are located in `hardware/`. Flux design files are included. The design emphasizes ease of repair and modification.
+
+See [docs/hardware/](docs/hardware/) for detailed hardware documentation.
 
 ---
 
-## 10. Testing
+## 11. Testing
 
-The project includes tests that validate:
-1. Velocity timing calculations
-2. Debouncing behavior
-3. MIDI message generation
-4. Matrix scanning logic
-
-Most tests can be executed without physical hardware.
+The project includes tests that validate velocity timing calculations, debouncing behavior, MIDI message generation, and matrix scanning logic. Most tests can be executed without physical hardware.
 
 See [docs/testing/TESTING_GUIDE.md](docs/testing/TESTING_GUIDE.md) for detailed testing documentation.
 
 ---
 
-## 11. Academic Context
+## 12. Academic Context
 
 This project was developed as a senior design project in Electrical Engineering at San José State University.
 
-**Senior Design Poster:**
-
-[📄 View Senior Design Poster PDF](docs/SeniorDesignPosterBoard.pdf)
+[View Senior Design Poster PDF](docs/SeniorDesignPosterBoard.pdf)
 
 ---
 
-## 12. License
+## 13. License
 
 This project is licensed under the MIT License.
 See [LICENSE](LICENSE) for details.
 
 ---
 
-## 13. Authors
+## 14. Authors
 
 1. **Michael Danylchuk** - Firmware, audio engine, system architecture
 2. **Zac Hatchett** - Hardware design, PCB, electrical integration
 
 ---
 
-## 14. Acknowledgments
+## 15. Acknowledgments
 
 1. Dr. Nadir Mir, Project Advisor
 2. San José State University Electrical Engineering Department
@@ -339,10 +241,9 @@ See [LICENSE](LICENSE) for details.
 
 ---
 
-## 15. Project Status
+## 16. Project Status
 
-Stable and functional.
-Actively maintained.
+Stable and functional. Actively maintained.
 
 ---
 
