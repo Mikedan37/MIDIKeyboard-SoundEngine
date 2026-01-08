@@ -4,7 +4,7 @@
 
 ```
 
- QWERTY & MIDI KEYBOARD SYSTEM
+ MIDI KEYBOARD SYSTEM
 
  PHYSICAL LAYER 
 
@@ -27,29 +27,29 @@
 
  COMMUNICATION LAYER 
 
- USB HID Interface USB MIDI Interface 
+ USB MIDI Interface 
 
- Endpoint: 0x81 (IN) Endpoint: 0x02 (OUT) 
- Protocol: HID Endpoint: 0x83 (IN) 
- Class: Keyboard Protocol: MIDI 
+ Endpoint: 0x02 (OUT) 
+ Endpoint: 0x83 (IN) 
+ Protocol: MIDI 
 
- macOS HID Driver macOS MIDI Driver 
- (System Level) (System Level) 
+ macOS MIDI Driver 
+ (System Level) 
 
- Standard Keyboard Input MIDI Message Stream 
- (Typing Functionality) (Musical Notes) 
+ MIDI Message Stream 
+ (Musical Notes) 
 
  APPLICATION LAYER (Python) 
 
  INPUT LAYER 
 
- MIDI Serial Keyboard 
- Listener Bridge Listener 
+ MIDI Serial 
+ Listener Bridge 
 
- pico_listener serial_midi_ mac_keyboard_ 
- .py adapter.py listener.py 
+ pico_listener serial_midi_ 
+ .py adapter.py 
 
- Thread 1 Thread 2 Thread 3 
+ Thread 1 Thread 2 
 
  unified_listener.py 
  (Thread Manager) 
@@ -92,13 +92,11 @@
 ## Component Interaction Matrix
 
 ```
- GPIO USB MIDI SerialKeyboard Audio GUI 
+ GPIO USB MIDI Serial Audio GUI 
 
 GPIO Driver - - - - - - 
-USB HID - - - - - 
 USB MIDI - - - - 
 Serial Bridge - - - - - 
-Keyboard Listener - - - - - 
 MIDI Listener - - - - - 
 Audio Engine - - - - - 
 GUI - - - - - 
@@ -106,19 +104,14 @@ GUI - - - - -
 
 ## Data Flow Summary
 
-### Input Paths (3 total)
+### Input Paths (2 total)
 
 **Path 1: Physical Keys**
 ```
-Physical Key → GPIO → Core 1 → Core 0 → USB (HID+MIDI) → macOS → Python → Audio
+Physical Key → GPIO → Core 1 → Core 0 → USB MIDI → macOS → Python → Audio
 ```
 
-**Path 2: QWERTY Keyboard**
-```
-Keyboard → macOS → pynput → Python → Audio
-```
-
-**Path 3: Serial Port**
+**Path 2: Serial Port**
 ```
 Pico Serial → macOS Serial → Python → Audio
 ```
@@ -149,7 +142,6 @@ Python Engine → rumps → macOS Menu Bar → Display
  Main Thread: Launch Input Listeners 
  Thread 1: MIDI Listener (daemon) 
  Thread 2: Serial Bridge (daemon) 
- Thread 3: Keyboard Listener (daemon) 
 
  Main Thread: Start GUI Loop 
  Menu Bar App (blocking) 
@@ -159,7 +151,6 @@ Python Engine → rumps → macOS Menu Bar → Display
  Background Threads: Continuous I/O 
  MIDI: Blocking read, auto-reconnect 
  Serial: Blocking read, error handling 
- Keyboard: Event-driven, non-blocking 
 
  Audio Thread: Real-time Callback 
  86 Hz callback rate (512 samples @ 44.1kHz) 
@@ -182,7 +173,7 @@ Python Engine → rumps → macOS Menu Bar → Display
 ### Concurrency Model
 - **Type**: Multi-threaded with shared state
 - **Synchronization**: Threading locks
-- **Thread Count**: 5 (1 main + 4 background)
+- **Thread Count**: 4 (1 main + 3 background)
 - **Thread Safety**: All shared state protected
 
 ### Real-Time Characteristics
@@ -192,7 +183,6 @@ Python Engine → rumps → macOS Menu Bar → Display
 - **GPIO Polling**: 5ms intervals
 
 ### Communication Protocols
-- **USB HID**: Standard keyboard protocol
 - **USB MIDI**: Standard MIDI protocol
 - **Serial**: Custom text-based protocol
 - **Internal**: Function calls (Python)
@@ -233,7 +223,6 @@ Python Engine → rumps → macOS Menu Bar → Display
 | **Audio Engine** | Real-time synthesis | NumPy, sounddevice |
 | **MIDI Listener** | USB MIDI input | mido, Audio Engine |
 | **Serial Bridge** | Serial communication | serial, Audio Engine |
-| **Keyboard Listener** | QWERTY input | pynput, Audio Engine |
 | **Menu Bar GUI** | User interface | rumps, Audio Engine |
 | **Orchestrator** | System coordination | All components |
 
@@ -266,7 +255,7 @@ Python Engine → rumps → macOS Menu Bar → Display
 
 This system map provides a complete visual representation of:
 - All system components and their relationships
-- Data flow paths (3 input, 2 output)
+- Data flow paths (2 input, 2 output)
 - Thread execution model
 - Communication protocols
 - System boundaries and responsibilities

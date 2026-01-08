@@ -15,7 +15,7 @@ That's it! All tests run without hardware.
 
 ### Matrix Scanning Logic
 - Row/column to key index conversion
-- All 48 keys mapped correctly
+- All 25 keys mapped correctly
 - Matrix state management
 
 ### Fake Input System
@@ -24,27 +24,22 @@ That's it! All tests run without hardware.
 - Multiple keys simultaneously (polyphonic)
 
 ### MIDI Mapping
-- All 48 keys → MIDI notes 60-107 (C4-B7)
+- All 25 keys → MIDI notes
 - Chromatic progression verified
 - Note ON/OFF messages
 
-### HID Mapping
-- All 48 keys → HID keycodes
-- Valid keycode range verified
-- Key press/release messages
-
 ### Integration Flow
-- Fake input → Matrix scan → MIDI/HID output
+- Fake input → Matrix scan → MIDI output
 - Polyphonic chords
 - Rapid key presses
-- All 48 keys individually
+- All 25 keys individually
 
 ---
 
 ## Test Files
 
 1. **`test_matrix.c`** - Matrix scanning and fake input
-2. **`test_midi_hid.c`** - MIDI/HID mappings and message sending
+2. **`test_midi_hid.c`** - MIDI mappings and message sending
 3. **`test_integration.c`** - Complete end-to-end flow
 
 ---
@@ -66,7 +61,7 @@ make run-all
 ### Option 3: Individual Tests
 ```bash
 make test_matrix # Matrix scanning only
-make test_midi_hid # MIDI/HID only
+make test_midi_hid # MIDI only
 make test_integration # Integration only
 ```
 
@@ -149,8 +144,7 @@ make all
  **Matrix logic works** - Row/column scanning is correct 
  **Fake input works** - Can simulate key presses 
  **State management works** - Keys tracked correctly 
- **MIDI mapping works** - All 48 keys map correctly 
- **HID mapping works** - All 48 keys map correctly 
+ **MIDI mapping works** - All 25 keys map correctly 
  **Integration works** - Full flow works end-to-end 
 
 ---

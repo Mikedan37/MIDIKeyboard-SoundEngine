@@ -17,7 +17,7 @@ Refer to the schematic to identify:
 ![PCB Layout](../../hardware/hardware_pics/pcb.png)
 
 The PCB layout shows the physical arrangement:
-- Switch positions (SW1-SW50)
+- Switch positions (25 keys total)
 - Trace routing between components
 - Component placement and orientation
 

@@ -56,4 +56,4 @@ Once setup is complete:
 - Press keys → Hear music
 - Menu bar (macOS) shows active notes
 
-Enjoy your QWERTY MIDI Keyboard!
+Enjoy your MIDI Keyboard!

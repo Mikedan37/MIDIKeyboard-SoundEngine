@@ -19,10 +19,15 @@ def midi_listener():
             print(f"🎹 Connected to: {pico_input}")
             with mido.open_input(pico_input) as inport:
                 for msg in inport:
+                    # Log host receive timestamp
+                    now_ns = time.time_ns()
+                    
                     if msg.type == 'note_on' and msg.velocity > 0:
+                        print(f"MIDI_EVENT,note={msg.note},vel={msg.velocity},t_ns={now_ns}")
                         print(f"[PICO PLAY] Note {msg.note}")
                         play_note(msg.note, velocity=msg.velocity)
                     elif msg.type in ['note_off', 'note_on'] and msg.velocity == 0:
+                        print(f"MIDI_EVENT,note={msg.note},vel=0,t_ns={now_ns}")
                         print(f"[PICO STOP] Note {msg.note}")
                         stop_note(msg.note)
 

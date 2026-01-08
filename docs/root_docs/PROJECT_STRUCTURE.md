@@ -1,6 +1,6 @@
 # Project Structure
 
-This document outlines the organization of the QWERTY MIDI Keyboard project.
+This document outlines the organization of the MIDI Keyboard project.
 
 ## Directory Layout
 

@@ -28,7 +28,7 @@ The PCB layout shows:
 - **2 Rows**: Used for velocity detection (not separate keys)
  - **ROW0**: Early contact (first touch)
  - **ROW1**: Late contact (full press)
-- **24 Columns**: One key per column = **24 keys total**
+- **25 Columns**: One key per column = **25 keys total**
 - **MSQT32 Shift Registers**: Read 24 column bits via shift register interface
 
 ### Key Detection Flow
@@ -81,7 +81,7 @@ For each key:
 
  HARDWARE LAYER 
 
- Physical Keys (24 keys) 
+ Physical Keys (25 keys) 
  ↓ 
  Early Contact (ROW0) → GPIO ROW0_PIN 
  Late Contact (ROW1) → GPIO ROW1_PIN 

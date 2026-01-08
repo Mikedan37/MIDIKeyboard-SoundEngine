@@ -14,9 +14,22 @@ void gpio_driver_init() {
 
 // Background polling loop for Core 1 - scans velocity-sensitive matrix
 void gpio_poll_loop() {
+    static uint32_t scan_counter = 0;
+    
     while (true) {
+        // Log matrix scan period (every 512 scans to avoid flooding)
+        uint32_t scan_start = time_us_32();
+        
         // Scan the velocity matrix (2-phase scanning)
         velocity_matrix_scan();
+        
+        uint32_t scan_end = time_us_32();
+        uint32_t scan_period = scan_end - scan_start;
+        
+        // Log scan period every 512 scans (0x1FF = 511, so 0x200 = 512)
+        if ((scan_counter++ & 0x1FF) == 0) {
+            printf("SCAN_PERIOD_US,%lu\n", (unsigned long)scan_period);
+        }
         
         // Update key states and velocities
         for (int i = 0; i < NUM_KEYS; i++) {

@@ -5,11 +5,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// Matrix Configuration: 2 rows × 24 columns = 24 keys
+// Matrix Configuration: 2 rows × 25 columns = 25 keys
 // Rows are for velocity detection (early/late contact), not separate keys
 #define MATRIX_ROWS 2
-#define MATRIX_COLS 24
-#define NUM_KEYS MATRIX_COLS  // 24 keys (one per column)
+#define MATRIX_COLS 25
+#define NUM_KEYS MATRIX_COLS  // 25 keys (one per column)
 
 // Row pin assignments - UPDATE THESE FROM YOUR SCHEMATIC
 #define ROW0_PIN 6   // Early contact (first touch)

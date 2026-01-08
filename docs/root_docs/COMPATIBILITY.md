@@ -10,7 +10,7 @@
 - **Requirements**: Python 3.9+, macOS 10.14+
 
 ### Windows
-- **Status**: Fully supported
+- **Status**: MIDI input supported; audio relies on default PortAudio device selection
 - **Setup**: `.\setup.ps1`
 - **Features**: All features except menu bar GUI (runs in background)
 - **Auto-launch**: Task Scheduler (configured automatically)
@@ -18,7 +18,7 @@
 - **Note**: May need to adjust PowerShell execution policy
 
 ### Linux
-- **Status**: Fully supported
+- **Status**: MIDI input supported; audio relies on default PortAudio device selection
 - **Setup**: `./setup.sh`
 - **Features**: All features except menu bar GUI (runs in background)
 - **Auto-launch**: systemd user service (configured automatically)
@@ -28,9 +28,8 @@
 
 | Feature | macOS | Windows | Linux |
 |---------|-------|---------|-------|
-| Audio synthesis | Yes | Yes | Yes |
+| Audio synthesis | Verified | Default PortAudio | Default PortAudio |
 | MIDI input | Yes | Yes | Yes |
-| QWERTY keyboard input | Yes | Yes | Yes |
 | Menu bar GUI | Yes | No | No |
 | Auto-launch | Yes | Yes | Yes |
 | Pico detection | Yes | Yes | Yes |
@@ -88,10 +87,10 @@ If menu bar doesn't appear:
 
 ## Testing
 
-All platforms tested with:
-- Python 3.9+
-- Standard USB MIDI devices
-- Pico firmware
+Platform validation:
+- macOS: Audio output verified
+- Windows/Linux: MIDI input tested; audio relies on default PortAudio device selection
+- All platforms: Python 3.9+, standard USB MIDI devices, Pico firmware
 
 ## Platform-Specific Notes
 

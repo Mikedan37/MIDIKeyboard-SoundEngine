@@ -16,7 +16,7 @@
 - **Total per key**: < 20μs
 
 ### Memory Usage
-- Key state array: 24 keys × 32 bytes = 768 bytes
+- Key state array: 25 keys × 32 bytes = 800 bytes
 - Stack usage: < 2KB
 - Total RAM: < 4KB
 - Flash usage: ~50KB

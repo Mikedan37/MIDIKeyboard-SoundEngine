@@ -6,7 +6,7 @@ include(pico_sdk_import.cmake)
 project(qwerty_midi_pico C CXX ASM)
 pico_sdk_init()
 
-add_compile_definitions(CFG_TUD_HID=1 CFG_TUD_MIDI=1)
+add_compile_definitions(CFG_TUD_MIDI=1)
 
 add_executable(qwerty_midi_pico
     main.c

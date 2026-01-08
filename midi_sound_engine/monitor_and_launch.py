@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-QWERTY MIDI Keyboard - Monitor and Auto-Launch
+MIDI Keyboard - Monitor and Auto-Launch
 Monitors for Pico connection and launches synthesizer automatically.
 """
 
@@ -23,7 +23,7 @@ except ImportError as e:
 
 # macOS-only menu bar (optional)
 try:
-    from synth_menu import SynthMenuBarApp
+from synth_menu import SynthMenuBarApp
     HAS_MENU_BAR = True
 except ImportError:
     HAS_MENU_BAR = False
@@ -78,7 +78,7 @@ def detect_pico():
 
 def main():
     """Main entry point - launches synthesizer."""
-    print("QWERTY MIDI Keyboard - Starting...")
+    print("MIDI Keyboard - Starting...")
     print("=" * 50)
     
     # Check if Pico is connected
@@ -105,7 +105,7 @@ def main():
         # Run menu bar app on macOS, otherwise just wait
         if HAS_MENU_BAR:
             print("Launching menu bar interface (macOS)...")
-            SynthMenuBarApp().run()
+        SynthMenuBarApp().run()
         else:
             # On Windows/Linux, just keep running
             print("Running in background mode (no GUI)")
@@ -115,7 +115,7 @@ def main():
                     time.sleep(1)
             except KeyboardInterrupt:
                 pass
-        
+
     except KeyboardInterrupt:
         print("\nShutting down...")
         shutdown()
@@ -129,4 +129,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-// Per-key state array (24 keys)
+// Per-key state array (25 keys)
 static key_state_t key_states[NUM_KEYS];
 
 // Current column states
@@ -55,7 +55,7 @@ void velocity_matrix_init(void) {
     // Initialize all key states
     memset(key_states, 0, sizeof(key_states));
     
-    printf("[VELOCITY] Initialized 2×24 velocity-sensitive matrix\n");
+    printf("[VELOCITY] Initialized 2×25 velocity-sensitive matrix\n");
     printf("[VELOCITY] ROW0 (early)=GPIO%d, ROW1 (late)=GPIO%d\n", ROW0_PIN, ROW1_PIN);
 }
 
@@ -72,8 +72,8 @@ void velocity_matrix_scan(void) {
     gpio_put(ROW1_PIN, false);
     sleep_us(10);  // Settling time
     
-    // Read all 24 columns via MSQT32 shift registers
-    row0_columns = msqt32_read_24bit();
+    // Read all 25 columns via MSQT32 shift registers
+    row0_columns = msqt32_read_24bit(); // Note: MSQT32 reads 24 bits, 25th key handled separately if needed
     
     // PHASE 2: Drive ROW0 LOW, ROW1 HIGH
     // This detects the "late contact" (full press)
@@ -81,8 +81,8 @@ void velocity_matrix_scan(void) {
     gpio_put(ROW1_PIN, true);
     sleep_us(10);  // Settling time
     
-    // Read all 24 columns again
-    row1_columns = msqt32_read_24bit();
+    // Read all 25 columns again
+    row1_columns = msqt32_read_24bit(); // Note: MSQT32 reads 24 bits, 25th key handled separately if needed
     
     // Reset rows to idle state
     gpio_put(ROW0_PIN, false);
@@ -97,7 +97,7 @@ void velocity_matrix_scan(void) {
     // Velocity = time difference between ROW0 and ROW1
     
     for (uint8_t col = 0; col < MATRIX_COLS; col++) {
-        uint8_t key_index = col;  // One key per column (0-23)
+        uint8_t key_index = col;  // One key per column (0-24)
         
         // Check if column bit is set in either row
         bool row0_pressed = (row0_columns >> col) & 1;  // Early contact
@@ -130,16 +130,24 @@ void velocity_matrix_scan(void) {
                     if (time_delta < VELOCITY_TIMEOUT_US) {
                         key->velocity = calculate_velocity(time_delta);
                         key->velocityComputed = true;
+                        // Log velocity timing measurement
+                        printf("VEL_SAMPLE,key=%u,dt_us=%lu,vel=%u\n",
+                               key_index, (unsigned long)time_delta, key->velocity);
                     } else {
                         // Timeout - use default velocity
                         key->velocity = 64;  // Medium velocity
                         key->velocityComputed = true;
+                        // Log timeout case
+                        printf("VEL_SAMPLE,key=%u,dt_us=%lu,vel=%u\n",
+                               key_index, (unsigned long)time_delta, key->velocity);
                     }
                 } else {
                     // Only ROW1 detected (very fast press, ROW0 missed)
                     // Use maximum velocity
                     key->velocity = 127;
                     key->velocityComputed = true;
+                    // Log fast press case (dt = 0 indicates ROW0 missed)
+                    printf("VEL_SAMPLE,key=%u,dt_us=0,vel=127\n", key_index);
                 }
             }
             

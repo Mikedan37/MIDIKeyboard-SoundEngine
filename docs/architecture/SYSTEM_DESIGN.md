@@ -1,4 +1,4 @@
-# QWERTY & MIDI Keyboard System - Complete System Design & Architecture
+# MIDI Keyboard System - Complete System Design & Architecture
 
 ## Table of Contents
 1. [System Overview](#system-overview)
@@ -16,15 +16,14 @@
 
 ## System Overview
 
-This is a **dual-mode USB keyboard system** that functions as both:
-- **Standard QWERTY Keyboard** (USB HID)
+This is a **USB MIDI keyboard system** that functions as:
 - **MIDI Musical Instrument** (USB MIDI)
 
 The system consists of:
 - **Hardware Layer**: Raspberry Pi Pico (RP2040) with GPIO key inputs
 - **Firmware Layer**: C-based embedded firmware with TinyUSB
 - **Software Layer**: Python-based audio engine and macOS GUI
-- **Communication Layer**: USB (HID + MIDI) and Serial protocols
+- **Communication Layer**: USB MIDI and Serial protocols
 
 ---
 
@@ -51,11 +50,9 @@ The system consists of:
  USB Task Loop (tud_task) 
  Key State Management 
  MIDI Note Sending (send_midi_note) 
- HID Key Sending (send_hid_key) 
 
  usb_descriptors.c 
  USB Device Descriptor 
- HID Report Descriptor 
  MIDI Class Descriptor 
  String Descriptors 
 
@@ -67,19 +64,18 @@ The system consists of:
  gpio_is_pressed() [State Query] 
 
  TinyUSB Library 
- USB HID Class Implementation 
  USB MIDI Class Implementation 
  USB Device Management 
 
- USB HID USB MIDI
+ USB MIDI
 
- macOS Host System macOS Host System 
+ macOS Host System 
 
- USB HID Driver USB MIDI Driver 
- (System Level) (System Level) 
+ USB MIDI Driver 
+ (System Level) 
 
- Keyboard Input MIDI Input 
- (Standard Typing) (Musical Notes) 
+ MIDI Input 
+ (Musical Notes) 
 
  SOFTWARE LAYER (Python) 
 
@@ -112,13 +108,6 @@ The system consists of:
  Serial port detection (usbmodem) 
  Protocol: "ON:60" / "OFF:60" 
  Calls engine.play_note() / stop_note() 
-
- Thread 3: Keyboard Listener 
-
- mac_keyboard_listener.py 
- pynput.keyboard.Listener 
- QWERTY → MIDI mapping (midi_utils.py) 
- Mario theme playback 
 
  Orchestration Layer 
 
@@ -180,10 +169,6 @@ GPIO Pin 4 → Key 5 → MIDI Note 67 (G4) → HID Keycode 0x08 (E)
 void send_midi_note(uint8_t note, bool on)
  - Generates MIDI note_on (0x90) or note_off (0x80) messages
  - Uses tud_midi_stream_write() for transmission
-
-void send_hid_key(uint8_t keycode)
- - Generates HID keyboard reports
- - Sends key press and release events
 ```
 
 #### Core 1: GPIO Polling (`drivers/gpio_driver.c`)
@@ -208,11 +193,9 @@ bool gpio_is_pressed(uint8_t pin)
 **USB Device Configuration:**
 - **Vendor ID**: 0xCafe
 - **Product ID**: 0x4000
-- **Device Class**: MISC (Composite Device)
-- **Interfaces**: HID (Keyboard) + MIDI
+- **Device Class**: MIDI
 
 **Endpoints:**
-- **EP 0x81**: HID IN (Keyboard reports)
 - **EP 0x02**: MIDI OUT (Note messages to host)
 - **EP 0x83**: MIDI IN (Note messages from host)
 
@@ -253,11 +236,11 @@ lock = threading.Lock() # State synchronization
 - Baud rate: 115200
 - Fallback communication method
 
-**3. Keyboard Listener (`mac_keyboard_listener.py`)**
-- Uses `pynput` for low-level keyboard capture
-- Maps QWERTY keys to MIDI notes
-- Includes Mario theme melody playback
-- Thread-safe note sequencing
+**3. Serial MIDI Bridge (`serial_midi_adapter.py`)**
+- Detects Pico serial port (usbmodem)
+- Protocol: `"ON:60"` / `"OFF:60"` (text-based)
+- Baud rate: 115200
+- Fallback communication method
 
 #### macOS GUI (`synth_menu.py`)
 - **Framework**: `rumps` (macOS menu bar library)
@@ -311,24 +294,7 @@ lock = threading.Lock() # State synchronization
 11. Hardware Audio Output (Speakers)
 ```
 
-### Path 2: QWERTY Keyboard → Audio Output
-
-```
-1. User Types Key (e.g., 'a')
-
-2. macOS Keyboard Input
-
-3. mac_keyboard_listener.py (pynput)
-
-4. midi_utils.key_to_midi('a') → 60
-
-5. engine.play_note(60)
-
-6. Audio Callback → Audio Output
- (Same as Path 1, steps 8-11)
-```
-
-### Path 3: Serial Communication → Audio Output
+### Path 2: Serial Communication → Audio Output
 
 ```
 1. Pico Serial Output: "ON:60\n"
@@ -349,22 +315,7 @@ lock = threading.Lock() # State synchronization
 
 ## Communication Protocols
 
-### 1. USB HID (Human Interface Device)
-
-**Purpose**: Standard keyboard input
-
-**Message Format**:
-```
-HID Keyboard Report (6 bytes):
-[0]: Keycode (0x04 = A, 0x05 = B, etc.)
-[1-5]: Reserved/Additional keys
-```
-
-**Transmission**:
-- Key Press: `tud_hid_keyboard_report(0, 0, report)`
-- Key Release: `tud_hid_keyboard_report(0, 0, NULL)`
-
-### 2. USB MIDI
+### 1. USB MIDI
 
 **Purpose**: Musical note communication
 
@@ -379,7 +330,7 @@ MIDI Message (3 bytes):
 **Transmission**:
 - `tud_midi_stream_write(0, msg, 3)`
 
-### 3. Serial Protocol
+### 2. Serial Protocol
 
 **Purpose**: Alternative communication method
 
@@ -421,10 +372,10 @@ OFF:60 # Note off, MIDI note 60
  Serial port reading [Blocking] 
  Protocol parsing 
 
- BACKGROUND THREAD 3: Keyboard Listener 
- mac_keyboard_listener.start_keyboard_...() 
- pynput.keyboard.Listener [Event-driven] 
- Mario note playback threads 
+ BACKGROUND THREAD 3: Serial Bridge 
+ serial_midi_adapter.serial_to_midi_bridge() 
+ Serial port reading [Blocking] 
+ Protocol parsing 
 
  BACKGROUND THREAD 4: Audio Engine 
  engine._audio_loop() 
@@ -574,8 +525,7 @@ monitor_and_launch.py
  Continuous Operation Loop 
 
  Input Sources (Parallel) 
- Physical Keys → GPIO → MIDI/HID 
- QWERTY Keys → Keyboard Listener 
+ Physical Keys → GPIO → MIDI 
  Serial Port → Serial Bridge 
 
  Audio Engine (Thread-Safe) 
@@ -651,17 +601,15 @@ monitor_and_launch.py
 ### Current Limitations
 1. **Fixed Key Mapping**: Hardcoded GPIO-to-MIDI mapping
 2. **Simple Synthesis**: Sine waves only
-3. **No Velocity Sensitivity**: Fixed velocity (100)
-4. **Limited Polyphony Management**: No voice stealing
-5. **macOS Only**: GUI limited to macOS
+3. **Limited Polyphony Management**: No voice stealing
+4. **macOS Only**: GUI limited to macOS
 
 ### Recommended Improvements
 1. **Configurable Key Mapping**: User-defined MIDI assignments
 2. **Advanced Synthesis**: Multiple waveforms, filters, effects
-3. **Velocity Support**: Hardware velocity detection
-4. **Voice Management**: Priority-based polyphony
-5. **Cross-Platform GUI**: Windows/Linux support
-6. **AI Integration**: Note prediction (ai_predict.py exists but minimal)
+3. **Voice Management**: Priority-based polyphony
+4. **Cross-Platform GUI**: Windows/Linux support
+5. **AI Integration**: Note prediction (ai_predict.py exists but minimal)
 
 ---
 
@@ -670,11 +618,11 @@ monitor_and_launch.py
 This system demonstrates a **sophisticated embedded-to-software architecture** with:
 
 - **Hardware Layer**: Raspberry Pi Pico with GPIO key inputs
-- **Firmware Layer**: Dual-core C firmware with USB HID/MIDI
+- **Firmware Layer**: Dual-core C firmware with USB MIDI
 - **Software Layer**: Multi-threaded Python audio engine
-- **Communication**: USB (HID + MIDI) and Serial protocols
+- **Communication**: USB MIDI and Serial protocols
 - **Real-Time Processing**: Low-latency audio synthesis
 - **User Interface**: Native macOS menu bar integration
 
-The architecture successfully bridges **embedded systems** and **desktop software** to create a functional musical instrument that doubles as a standard keyboard.
+The architecture successfully bridges **embedded systems** and **desktop software** to create a functional MIDI musical instrument.
 

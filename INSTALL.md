@@ -1,6 +1,6 @@
 # Installation Guide
 
-Complete installation guide for the QWERTY MIDI Keyboard.
+Complete installation guide for the MIDI Keyboard.
 
 ## Quick Start
 

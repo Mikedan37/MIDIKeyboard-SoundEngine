@@ -45,6 +45,10 @@ def get_last_note_info():
         return last_note, last_freq
 
 def audio_callback(outdata, frames, time_info, status):
+    # Log audio callback timestamp (first line of callback)
+    now_ns = time.time_ns()
+    print(f"AUDIO_CALLBACK,t_ns={now_ns}")
+    
     if status:
         print("⚠️ Audio callback warning:", status)
 

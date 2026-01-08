@@ -1,6 +1,6 @@
-# QWERTY MIDI Pico Firmware
+# MIDI Keyboard Pico Firmware
 
-Firmware for the Raspberry Pi Pico (RP2040) implementing a velocity-sensitive USB keyboard with dual HID/MIDI modes.
+Firmware for the Raspberry Pi Pico (RP2040) implementing a velocity-sensitive USB MIDI keyboard.
 
 ## Structure
 
@@ -10,7 +10,7 @@ qwerty_midi_pico/
  CMakeLists.txt # Build configuration
  config.h # Project configuration
  tusb_config.h # TinyUSB configuration
- usb_descriptors.c/h # USB HID + MIDI descriptors
+ usb_descriptors.c/h # USB MIDI descriptors
  pico_sdk_import.cmake # Pico SDK import
  flash.sh # Flash script
 
@@ -78,7 +78,6 @@ Update in `drivers/current/msqt32_shift_register.h`:
 
 - Velocity-sensitive key detection (1-127 MIDI range)
 - 2-phase scanning (early/late contact)
-- USB HID keyboard mode
 - USB MIDI controller mode
-- 24 keys with velocity detection
+- 25 keys with velocity detection
 - Comprehensive test suite
