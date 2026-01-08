@@ -1,8 +1,17 @@
 # MIDIKeyboard-SoundEngine
 
-Open-source, velocity-sensitive USB MIDI keyboard built on the RP2040.
+**Status:** Stable | Actively maintained | Tested on macOS and Linux
+
+Open-source, velocity-sensitive USB MIDI keyboard built on the RP2040 microcontroller, featuring true dual-contact key sensing and class-compliant USB MIDI.
 
 A fully open, repairable 25-key MIDI controller with true dual-contact velocity sensing, real-time USB MIDI output, and a cross-platform Python synthesizer. Designed to be low-cost, expressive, and educational without sacrificing real-time performance.
+
+**At a glance:**
+- True dual-contact velocity sensing (no firmware tricks)
+- Dual-core RP2040 real-time architecture
+- Class-compliant USB MIDI (no drivers)
+- Measured scan rates and latency characteristics
+- Fully open hardware, firmware, and host software
 
 ---
 
@@ -60,6 +69,8 @@ Key Press → Dual-Contact Matrix (t₀, t₁) → RP2040 Firmware → USB MIDI 
 
 Velocity is calculated from the time delta between early and late contact closures and mapped to the standard MIDI velocity range (1–127).
 
+The architecture is intentionally modular, allowing the key matrix, firmware logic, or host synthesizer to be extended or replaced independently.
+
 See [docs/architecture/SYSTEM_DESIGN.md](docs/architecture/SYSTEM_DESIGN.md) for detailed architecture documentation.
 
 ---
@@ -86,6 +97,8 @@ See [INSTALL.md](INSTALL.md) for manual setup instructions.
 ---
 
 ## 6. Performance Characteristics
+
+The following characteristics were measured or observed during development and functional testing.
 
 Measured during testing:
 
@@ -212,7 +225,7 @@ See [docs/testing/TESTING_GUIDE.md](docs/testing/TESTING_GUIDE.md) for detailed 
 
 ## 12. Academic Context
 
-This project was developed as a senior design project in Electrical Engineering at San José State University.
+This project originated as an Electrical Engineering senior design project at San José State University and has since been refined into a standalone open-source system.
 
 [View Senior Design Poster PDF](docs/SeniorDesignPosterBoard.pdf)
 
