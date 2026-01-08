@@ -1,10 +1,10 @@
 # MIDIKeyboard-SoundEngine
 
-**Status:** Stable | Actively maintained | Tested on macOS and Linux
+**Status:** Stable | Actively maintained | MIDI tested cross-platform; audio verified on macOS
 
 Open-source, velocity-sensitive USB MIDI keyboard built on the RP2040 microcontroller, featuring true dual-contact key sensing and class-compliant USB MIDI.
 
-A fully open, repairable 25-key MIDI controller with real-time USB MIDI output and a cross-platform Python synthesizer. Designed to be low-cost, expressive, and educational without sacrificing real-time performance.
+A fully open, repairable 25-key MIDI controller with real-time USB MIDI output and a Python synthesizer built on a cross-platform PortAudio backend. Designed to be low-cost, expressive, and educational without sacrificing real-time performance.
 
 **At a glance:**
 - True dual-contact velocity sensing (no firmware tricks)
@@ -47,7 +47,7 @@ Key goals:
 ### 2.3 Host Software
 1. Python-based polyphonic synthesizer
 2. Real-time MIDI listener
-3. Cross-platform audio output
+3. Audio output via PortAudio (verified on macOS)
 4. Optional macOS menu bar interface
 
 ---
@@ -111,6 +111,7 @@ Observed during functional testing:
 - **Polyphony**: Sustained playback of all 25 keys without audio dropouts
 - **Host audio sample rate**: 44.1 kHz
 - **Core utilization**: Core 1 dedicated to scanning and timing; Core 0 handles USB stack and event processing
+- **Platform validation**: Audio output verified on macOS; Windows and Linux rely on default PortAudio device selection
 
 These characteristics were validated under sustained polyphonic load during normal interactive use.
 
