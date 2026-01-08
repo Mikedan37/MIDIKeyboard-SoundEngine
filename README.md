@@ -4,7 +4,7 @@
 
 Open-source, velocity-sensitive USB MIDI keyboard built on the RP2040 microcontroller, featuring true dual-contact key sensing and class-compliant USB MIDI.
 
-A fully open, repairable 25-key MIDI controller with true dual-contact velocity sensing, real-time USB MIDI output, and a cross-platform Python synthesizer. Designed to be low-cost, expressive, and educational without sacrificing real-time performance.
+A fully open, repairable 25-key MIDI controller with real-time USB MIDI output and a cross-platform Python synthesizer. Designed to be low-cost, expressive, and educational without sacrificing real-time performance.
 
 **At a glance:**
 - True dual-contact velocity sensing (no firmware tricks)
@@ -65,7 +65,10 @@ Key goals:
 
 ## 4. System Overview
 
-Key Press → Dual-Contact Matrix (t₀, t₁) → RP2040 Firmware → USB MIDI → Host MIDI Listener → Python Synth Engine → Audio Output
+1. Key press detected by dual-contact matrix (t₀, t₁)
+2. Velocity calculated in firmware on the RP2040
+3. USB MIDI note event transmitted
+4. Host synthesizer renders polyphonic audio
 
 Velocity is calculated from the time delta between early and late contact closures and mapped to the standard MIDI velocity range (1–127).
 
@@ -100,7 +103,7 @@ See [INSTALL.md](INSTALL.md) for manual setup instructions.
 
 The following characteristics were measured or observed during development and functional testing.
 
-Measured during testing:
+Observed during functional testing:
 
 - **Matrix scan rate**: Approximately 500–540 Hz on Core 1
 - **Velocity timing resolution**: On the order of tens of microseconds
@@ -108,6 +111,8 @@ Measured during testing:
 - **Polyphony**: Sustained playback of all 25 keys without audio dropouts
 - **Host audio sample rate**: 44.1 kHz
 - **Core utilization**: Core 1 dedicated to scanning and timing; Core 0 handles USB stack and event processing
+
+These characteristics were validated under sustained polyphonic load during normal interactive use.
 
 ---
 
