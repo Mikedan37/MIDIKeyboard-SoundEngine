@@ -1,28 +1,29 @@
-# Release v1.0 - Open Source Release
+# Release v1.0.0 – Open Source Release
 
 ## Initial Open Source Release
 
-We're excited to announce the open-source release of the MIDI Keyboard project! This is a complete velocity-sensitive USB MIDI keyboard controller built on the Raspberry Pi Pico (RP2040) with real-time polyphonic synthesis.
+We're excited to announce the open-source release of the MIDI Keyboard project! This is a complete velocity-sensitive USB MIDI keyboard controller built on the Raspberry Pi Pico (RP2040). The device outputs USB MIDI events, and a Python-based host synthesizer provides real-time polyphonic audio synthesis.
 
 ## Key Features
 
 ### Hardware
-- **2×25 Velocity-Sensitive Keyboard Matrix**: Dual-contact detection for accurate velocity measurement (1-127 MIDI range)
-- **MSQT32 Shift Registers**: Efficient 24-bit column reading interface
+- **25-Key Velocity-Sensitive Matrix**: Dual-contact detection per key for accurate velocity measurement (1-127 MIDI range)
+- **Shift Register Interface**: Efficient column reading for matrix scanning
 - **Raspberry Pi Pico (RP2040)**: Dual-core architecture for parallel processing
+- **Open Design**: Schematic and PCB layout available (logically verified, not fabricated)
 
 ### Firmware
-- **Real-Time Key Scanning**: 500 Hz scan rate with 5ms debouncing
-- **Velocity Detection**: Precise timing-based velocity calculation
+- **Real-Time Key Scanning**: Approximately 500 Hz scan rate with debouncing
+- **Velocity Detection**: Precise timing-based velocity calculation from dual-contact timing
 - **USB MIDI Class**: Standard USB MIDI device - no drivers required
-- **Dual-Core Processing**: Core 1 handles GPIO polling, Core 0 manages USB communication
+- **Dual-Core Processing**: Core 1 handles GPIO polling and velocity timing, Core 0 manages USB communication
 
-### Software
+### Host Software
 - **Polyphonic Synthesizer**: Pure Python implementation supporting all 25 keys simultaneously
 - **macOS Integration**: Native menu bar application with live MIDI note display
 - **Cross-Platform MIDI**: MIDI input works on macOS, Windows, and Linux
 - **Audio Output**: Verified on macOS; Windows and Linux use default PortAudio device selection
-- **Auto-Launch**: Automatic setup scripts for all platforms
+- **Setup Scripts**: Automated installation and configuration scripts for all platforms
 
 ## Quick Start
 
@@ -38,7 +39,7 @@ We're excited to announce the open-source release of the MIDI Keyboard project! 
 .\setup.ps1
 ```
 
-The setup script automatically installs dependencies, configures auto-launch, and detects your Pico connection.
+The setup scripts install Python dependencies, configure the synthesizer environment, and provide Pico detection support.
 
 ### Building Firmware
 
@@ -61,7 +62,7 @@ Comprehensive documentation is available in the `docs/` directory:
 
 ## Testing
 
-The project includes a comprehensive test suite that validates functionality without requiring physical hardware:
+The project includes a test suite that validates firmware logic, velocity calculations, and matrix scanning behavior without requiring physical hardware:
 
 ```bash
 cd qwerty_midi_pico/tests
@@ -73,30 +74,29 @@ make test_velocity_simple
 
 - Complete firmware source code (C)
 - Python synthesizer and GUI
-- Hardware schematics and PCB design files
+- Hardware schematics and PCB layout design files
 - Comprehensive test suite
 - Full documentation
 - Cross-platform setup scripts
-- Example configurations
 
 ## Technical Specifications
 
 - **Microcontroller**: Raspberry Pi Pico (RP2040)
 - **Keys**: 25 velocity-sensitive keys
-- **Scan Rate**: 500 Hz
+- **Scan Rate**: Approximately 500–540 Hz
 - **MIDI Velocity Range**: 1-127
 - **Polyphony**: Full (all 25 keys simultaneously)
 - **USB**: USB MIDI Class compliant
-- **Platforms**: macOS, Windows, Linux
+- **Platforms**: macOS (audio verified), Windows/Linux (MIDI input, default audio)
 
 ## Credits
 
 - **Michael Danylchuk** - Firmware, Audio Engine, macOS GUI
-- **Christopher "Zac" Hatchett** - Hardware Design, PCB, GPIO Integration
+- **Christopher "Zac" Hatchett** - Hardware Design, PCB Layout
 
 ## Acknowledgments
 
-- San Jose State University (EE198A Senior Design Project)
+- San José State University (EE198A Senior Design Project)
 - Dr. Nadir Mir - Project Mentor
 - Raspberry Pi Foundation - Pico SDK
 - TinyUSB Contributors - USB MIDI stack
@@ -112,4 +112,3 @@ Contributions are welcome! Please see [CONTRIBUTING.md](docs/root_docs/CONTRIBUT
 ---
 
 **Thank you for checking out our project! We hope this open-source release helps others learn and build upon our work.**
-
