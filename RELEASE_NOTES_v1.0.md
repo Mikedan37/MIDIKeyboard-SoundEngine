@@ -20,7 +20,8 @@ We're excited to announce the open-source release of the MIDI Keyboard project! 
 ### Software
 - **Polyphonic Synthesizer**: Pure Python implementation supporting all 25 keys simultaneously
 - **macOS Integration**: Native menu bar application with live MIDI note display
-- **Cross-Platform**: Works on macOS, Windows, and Linux
+- **Cross-Platform MIDI**: MIDI input works on macOS, Windows, and Linux
+- **Audio Output**: Verified on macOS; Windows and Linux use default PortAudio device selection
 - **Auto-Launch**: Automatic setup scripts for all platforms
 
 ## Quick Start
@@ -55,8 +56,8 @@ Flash the generated `.uf2` file to your Pico. See [FLASH.md](qwerty_midi_pico/FL
 Comprehensive documentation is available in the `docs/` directory:
 - [Installation Guide](INSTALL.md)
 - [Hardware Documentation](docs/hardware/)
-- [MIDI Protocol Theory](docs/MIDI_PROTOCOL_THEORY.md)
-- [Theory & Calculations](docs/THEORY_AND_CALCULATIONS.md)
+- [System Architecture](docs/architecture/SYSTEM_DESIGN.md)
+- [Testing Guide](docs/testing/TESTING_GUIDE.md)
 
 ## Testing
 
